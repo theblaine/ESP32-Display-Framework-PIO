@@ -5,6 +5,7 @@
 
 #include "Display.h"
 
+#include "DisplayConfig.h"
 #include "Display_ST7789.h"
 
 namespace Display
@@ -26,11 +27,11 @@ namespace Display
 
     std::uint16_t width()
     {
-        return LCD_WIDTH;
+        return DisplayConfig::Width;
     }
 
     std::uint16_t height()
     {
-        return LCD_HEIGHT;
+        return DisplayConfig::Height;
     }
 }

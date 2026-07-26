@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 #include "Logger.h"
-#include "Display_ST7789.h"
+#include "Display.h"
 #include "Display_GFX.h"
 #include "Display_Text.h"
 
@@ -16,7 +16,7 @@ void setup()
     LOG("=====================================");
 
     LOG("Initializing display.");
-    LCD_Init();
+    Display::begin();
 
     Display_FillScreen(Color::Black);
 
@@ -30,7 +30,7 @@ void setup()
         2);
 
     Display_DrawTextCentered(
-        LCD_WIDTH / 2,
+        Display::width() / 2,
         55,
         "CENTER",
         Color::Green,
@@ -38,7 +38,7 @@ void setup()
         2);
 
     Display_DrawTextRight(
-        LCD_WIDTH - 10,
+        Display::width() - 10,
         100,
         "RIGHT",
         Color::Yellow,
@@ -46,7 +46,7 @@ void setup()
         2);
 
     Display_DrawTextCentered(
-        LCD_WIDTH / 2,
+        Display::width() / 2,
         160,
         "ESP32-S3",
         Color::Cyan,

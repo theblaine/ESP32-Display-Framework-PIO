@@ -1,25 +1,27 @@
 #include "Display_GFX.h"
+
 #include "Display_ST7789.h"
+#include "DisplayConfig.h"
 
 #include <math.h>
 
 void Display_FillScreen(uint16_t color)
 {
-    static uint16_t rowBuffer[LCD_WIDTH];
+    static uint16_t rowBuffer[DisplayConfig::Width];
 
     // Prepare one complete row of the requested color.
-    for (uint16_t x = 0; x < LCD_WIDTH; x++)
+    for (uint16_t x = 0; x < DisplayConfig::Width; x++)
     {
         rowBuffer[x] = color;
     }
 
     // Send that row to every row of the display.
-    for (uint16_t y = 0; y < LCD_HEIGHT; y++)
+    for (uint16_t y = 0; y < DisplayConfig::Height; y++)
     {
         LCD_addWindow(
             0,
             y,
-            LCD_WIDTH - 1,
+            DisplayConfig::Width - 1,
             y,
             rowBuffer);
     }
@@ -32,7 +34,7 @@ void Display_FillRect(int16_t x, int16_t y, int16_t width, int16_t height, uint1
         return;
     }
 
-    static uint16_t rowBuffer[LCD_WIDTH];
+    static uint16_t rowBuffer[DisplayConfig::Width];
 
     for (int16_t i = 0; i < width; i++)
     {
@@ -69,7 +71,7 @@ void Display_DrawFastHLine(int16_t x, int16_t y, int16_t width, uint16_t color)
         return;
     }
 
-    static uint16_t rowBuffer[LCD_WIDTH];
+    static uint16_t rowBuffer[DisplayConfig::Width];
 
     for (int16_t i = 0; i < width; i++)
     {
@@ -91,7 +93,7 @@ void Display_DrawFastVLine(int16_t x, int16_t y, int16_t height, uint16_t color)
         return;
     }
 
-    static uint16_t columnBuffer[LCD_HEIGHT];
+    static uint16_t columnBuffer[DisplayConfig::Height];
 
     for (int16_t i = 0; i < height; i++)
     {

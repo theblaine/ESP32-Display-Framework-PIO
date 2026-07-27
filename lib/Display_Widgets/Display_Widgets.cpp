@@ -4,6 +4,8 @@
 #include "Display_Text.h"
 #include "Display_ST7789.h"
 
+#include "DisplayConfig.h"
+
 
 namespace
 {
@@ -624,13 +626,13 @@ void Display_DrawHeaderBar(
         return;
     }
 
-    if (height > LCD_HEIGHT)
+    if (height > DisplayConfig::Height)
     {
-        height = LCD_HEIGHT;
+        height = DisplayConfig::Height;
     }
 
-    Display_FillRect(0, 0, LCD_WIDTH, height, backgroundColor);
-    Display_DrawFastHLine(0, height - 1, LCD_WIDTH, borderColor);
+    Display_FillRect(0, 0, DisplayConfig::Width, height, backgroundColor);
+    Display_DrawFastHLine(0, height - 1, DisplayConfig::Width, borderColor);
 
     constexpr int16_t FontHeight = 7;
     constexpr int16_t HorizontalPadding = 6;
@@ -671,15 +673,15 @@ void Display_DrawFooterBar(
         return;
     }
 
-    if (height > LCD_HEIGHT)
+    if (height > DisplayConfig::Height)
     {
-        height = LCD_HEIGHT;
+        height = DisplayConfig::Height;
     }
 
-    const int16_t y = LCD_HEIGHT - height;
+    const int16_t y = DisplayConfig::Height - height;
 
-    Display_FillRect(0, y, LCD_WIDTH, height, backgroundColor);
-    Display_DrawFastHLine(0, y, LCD_WIDTH, borderColor);
+    Display_FillRect(0, y, DisplayConfig::Width, height, backgroundColor);
+    Display_DrawFastHLine(0, y, DisplayConfig::Width, borderColor);
 
     constexpr int16_t FontHeight = 7;
 
@@ -687,7 +689,7 @@ void Display_DrawFooterBar(
     const int16_t textY = y + ((height - textHeight) / 2);
 
     Display_DrawTextCentered(
-        LCD_WIDTH / 2,
+        DisplayConfig::Width / 2,
         textY,
         text,
         textColor,

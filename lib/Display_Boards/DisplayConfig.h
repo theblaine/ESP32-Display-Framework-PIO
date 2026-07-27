@@ -5,12 +5,18 @@
 
 #pragma once
 
-#include "Waveshare_ESP32S3_LCD_147/WaveshareDisplayConfig.h"
+#if defined(DISPLAY_BOARD_WAVESHARE_147)
 
-/**
- * @brief Board-neutral name for the active display configuration.
- *
- * This alias allows the graphics and application layers to consume display
- * geometry without depending directly on a display-controller driver.
- */
+#include "Waveshare_ESP32S3_LCD_147/WaveshareDisplayConfig.h"
 namespace DisplayConfig = WaveshareDisplayConfig;
+
+#elif defined(DISPLAY_BOARD_TTGO_T_DISPLAY)
+
+#include "TTGO_T_Display/TTGODisplayConfig.h"
+namespace DisplayConfig = TTGODisplayConfig;
+
+#else
+
+#error "No display board selected. Define DISPLAY_BOARD_WAVESHARE_147 or DISPLAY_BOARD_TTGO_T_DISPLAY."
+
+#endif

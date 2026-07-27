@@ -36,7 +36,7 @@
    You must copy the PNG File from the SD Card File folder to the SD card and connect the SD card to the device
 */
 #include "SD_Card.h"
-#include "Display_ST7789.h"
+#include "Display.h"
 
 #include "Logger.h"
 #include "image_demo.h"
@@ -59,10 +59,10 @@ void setup()
     SD_Init();
 
     LOG("Initializing display.");
-    LCD_Init();
+    Display::begin();
 
     LOG("Setting backlight to 90%.");
-    Set_Backlight(90);
+    Display::setBrightness(90);
 
     LOG("PNG image demo initialization complete.");
 }

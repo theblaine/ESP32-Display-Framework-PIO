@@ -25,6 +25,11 @@ namespace Display
         Display_SetBrightness(percent);
     }
 
+    std::uint8_t brightness()
+    {
+        return Display_GetBrightness();
+    }
+
     std::uint16_t width()
     {
         return DisplayConfig::Width;

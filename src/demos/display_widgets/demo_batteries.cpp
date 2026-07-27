@@ -11,7 +11,7 @@
  *     Display_DrawLabel()
  ******************************************************************************/
 
-#include "Display_ST7789.h"
+#include "Display.h"
 #include "Display_GFX.h"
 #include "Display_Widgets.h"
 

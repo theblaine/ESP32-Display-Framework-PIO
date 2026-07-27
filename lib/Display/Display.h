@@ -28,6 +28,13 @@ namespace Display
     void setBrightness(std::uint8_t percent);
 
     /**
+     * @brief Returns the current display backlight brightness.
+     *
+     * @return Brightness percentage from 0 to 100.
+     */
+    std::uint8_t brightness();
+
+    /**
      * @brief Returns the logical display width.
      *
      * @return Display width in pixels.

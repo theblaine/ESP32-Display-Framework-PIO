@@ -1,36 +1,30 @@
 #pragma once
 
 #include <Arduino.h>
-#include <SPI.h>
-
-#include "Waveshare_ESP32S3_LCD_147/WaveshareDisplayConfig.h"
 
 /**
- * @brief Temporary geometry aliases used by the existing graphics stack.
- *
- * Only these two aliases remain because Display_GFX still uses them. The
- * ST7789 implementation now reads all board-specific values directly from
- * WaveshareDisplayConfig. A later refactor will remove these final aliases
- * when Display_GFX is separated from the concrete driver.
+ * Initializes the LCD controller and backlight.
  */
-
 void LCD_Init(void);
-void LCD_SetCursor(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yend);
-void LCD_addWindow(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yend, uint16_t* color);
 
 /**
- * Initializes PWM control for the LCD backlight.
- *
- * Normally called automatically by LCD_Init().
+ * Defines the active LCD drawing window.
  */
-void Backlight_Init(void);
+void LCD_SetCursor(
+    uint16_t xStart,
+    uint16_t yStart,
+    uint16_t xEnd,
+    uint16_t yEnd);
 
 /**
- * Legacy backlight API retained for compatibility.
- *
- * @param light Brightness from 0 to 100 percent.
+ * Writes pixel data to a rectangular LCD window.
  */
-void Set_Backlight(uint8_t light);
+void LCD_addWindow(
+    uint16_t xStart,
+    uint16_t yStart,
+    uint16_t xEnd,
+    uint16_t yEnd,
+    uint16_t* color);
 
 /**
  * Sets the LCD backlight brightness.
@@ -40,8 +34,8 @@ void Set_Backlight(uint8_t light);
 void Display_SetBrightness(uint8_t percent);
 
 /**
- * Returns the current LCD backlight brightness percentage.
+ * Returns the current LCD backlight brightness.
  *
  * @return Brightness from 0 to 100 percent.
  */
-uint8_t Display_GetBrightness();
+uint8_t Display_GetBrightness(void);

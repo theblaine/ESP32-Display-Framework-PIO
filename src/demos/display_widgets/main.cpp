@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 #include "Logger.h"
-#include "Display_ST7789.h"
+#include "Display.h"
 #include "Buttons.h"
 
 #include "WidgetDemoPages.h"
@@ -39,7 +39,7 @@ void ApplyNextBrightnessLevel()
         (CurrentBrightnessLevel + 1) % BrightnessLevelCount;
 
     const uint8_t brightness = BrightnessLevels[CurrentBrightnessLevel];
-    Set_Backlight(brightness);
+    Display::setBrightness(brightness);
 
     switch (brightness)
     {
@@ -163,8 +163,8 @@ void setup()
     LOG("=====================================");
 
     LOG("Initializing display.");
-    LCD_Init();
-    Set_Backlight(StartupBrightness);
+    Display::begin();
+    Display::setBrightness(StartupBrightness);
     LOG("Brightness: 100%.");
 
     LOG("Initializing BOOT button.");

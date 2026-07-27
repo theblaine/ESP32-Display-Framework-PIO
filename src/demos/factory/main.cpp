@@ -39,7 +39,7 @@
 
 #include "Logger.h"
 #include "SD_Card.h"
-#include "Display_ST7789.h"
+#include "Display.h"
 #include "LVGL_Driver.h"
 #include "factory_demo.h"
 #include "Wireless.h"
@@ -61,9 +61,9 @@ void setup()
   SD_Init();
 
   LOG("Initializing display.");
-  LCD_Init();
+  Display::begin();
 
-  Set_Backlight(90);
+  Display::setBrightness(90);
 
   LOG("Initializing LVGL.");
   Lvgl_Init();

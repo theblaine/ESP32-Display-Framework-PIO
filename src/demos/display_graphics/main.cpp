@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 #include "Display_GFX.h"
-#include "Display_ST7789.h"
+#include "Display.h"
 #include "Logger.h"
 
 namespace
@@ -116,9 +116,9 @@ namespace
     {
         Display_FillScreen(Color::Black);
 
-        for (int16_t y = 20; y < LCD_HEIGHT - 20; y += 10)
+        for (int16_t y = 20; y < Display::height() - 20; y += 10)
         {
-            for (int16_t x = 10; x < LCD_WIDTH - 10; x += 10)
+            for (int16_t x = 10; x < Display::width() - 10; x += 10)
             {
                 uint16_t color = Color::White;
 
@@ -162,12 +162,12 @@ namespace
 
         int colorIndex = 0;
 
-        for (int16_t y = 10; y < LCD_HEIGHT; y += 8)
+        for (int16_t y = 10; y < Display::height(); y += 8)
         {
             Display_DrawFastHLine(
                 10,
                 y,
-                LCD_WIDTH - 20,
+                Display::width() - 20,
                 colors[colorIndex]);
 
             colorIndex++;
@@ -202,12 +202,12 @@ namespace
 
         size_t colorIndex = 0;
 
-        for (int16_t x = 10; x < LCD_WIDTH; x += 8)
+        for (int16_t x = 10; x < Display::width(); x += 8)
         {
             Display_DrawFastVLine(
                 x,
                 10,
-                LCD_HEIGHT - 20,
+                Display::height() - 20,
                 colors[colorIndex]);
 
             colorIndex++;
@@ -242,8 +242,8 @@ namespace
 
         int16_t x = 10;
         int16_t y = 10;
-        int16_t width = LCD_WIDTH - 20;
-        int16_t height = LCD_HEIGHT - 20;
+        int16_t width = Display::width() - 20;
+        int16_t height = Display::height() - 20;
 
         size_t colorIndex = 0;
 
@@ -293,13 +293,13 @@ namespace
 
         constexpr int16_t spacing = 12;
 
-        const int16_t centerX = LCD_WIDTH / 2;
-        const int16_t centerY = LCD_HEIGHT / 2;
+        const int16_t centerX = Display::width() / 2;
+        const int16_t centerY = Display::height() / 2;
 
         size_t colorIndex = 0;
 
         // Center to top and bottom edges.
-        for (int16_t x = 0; x < LCD_WIDTH; x += spacing)
+        for (int16_t x = 0; x < Display::width(); x += spacing)
         {
             Display_DrawLine(
                 centerX,
@@ -314,14 +314,14 @@ namespace
                 centerX,
                 centerY,
                 x,
-                LCD_HEIGHT - 1,
+                Display::height() - 1,
                 colors[colorIndex]);
 
             colorIndex = (colorIndex + 1) % colorCount;
         }
 
         // Center to left and right edges.
-        for (int16_t y = 0; y < LCD_HEIGHT; y += spacing)
+        for (int16_t y = 0; y < Display::height(); y += spacing)
         {
             Display_DrawLine(
                 centerX,
@@ -335,7 +335,7 @@ namespace
             Display_DrawLine(
                 centerX,
                 centerY,
-                LCD_WIDTH - 1,
+                Display::width() - 1,
                 y,
                 colors[colorIndex]);
 
@@ -364,12 +364,12 @@ namespace
         constexpr size_t colorCount =
             sizeof(colors) / sizeof(colors[0]);
 
-        const int16_t centerX = LCD_WIDTH / 2;
+        const int16_t centerX = Display::width() / 2;
 
         int16_t leftX = 10;
-        int16_t rightX = LCD_WIDTH - 11;
+        int16_t rightX = Display::width() - 11;
         int16_t topY = 10;
-        int16_t bottomY = LCD_HEIGHT - 11;
+        int16_t bottomY = Display::height() - 11;
 
         size_t colorIndex = 0;
 
@@ -419,11 +419,11 @@ namespace
         constexpr size_t colorCount =
             sizeof(colors) / sizeof(colors[0]);
 
-        const int16_t centerX = LCD_WIDTH / 2;
-        const int16_t centerY = LCD_HEIGHT / 2;
+        const int16_t centerX = Display::width() / 2;
+        const int16_t centerY = Display::height() / 2;
 
         const int16_t maximumRadius =
-            min(LCD_WIDTH, LCD_HEIGHT) / 2 - 5;
+            min(Display::width(), Display::height()) / 2 - 5;
 
         size_t colorIndex = 0;
 
@@ -503,11 +503,11 @@ void setup()
     LOG("=====================================");
     LOG(" ESP32-S3 Display Demo");
     LOG("=====================================");
-    LOGF("Display size: %d x %d", LCD_WIDTH, LCD_HEIGHT);
+    LOGF("Display size: %d x %d", Display::width(), Display::height());
     LOGF("Demo duration: %lu ms", DEMO_DURATION_MS);
 
     LOG("Initializing display.");
-    LCD_Init();
+    Display::begin();
 
     showCurrentDemo();
     lastDemoChange = millis();

@@ -13,6 +13,7 @@
 #include "Display_ST7789.h"
 #include "Display_GFX.h"
 #include "Display_Widgets.h"
+#include "Display.h"
 
 #include "WidgetDemoPages.h"
 
@@ -31,7 +32,7 @@ void DrawHeaderFooterBarsDemo()
     Display_DrawPanel(
         10,
         55,
-        LCD_WIDTH - 20,
+        Display::width() - 20,
         70,
         Color::Black,
         Color::Cyan,
@@ -40,7 +41,7 @@ void DrawHeaderFooterBarsDemo()
     Display_DrawLabel(
         10,
         55,
-        LCD_WIDTH - 20,
+        Display::width() - 20,
         70,
         "CONTENT AREA",
         Color::Cyan,
@@ -50,7 +51,7 @@ void DrawHeaderFooterBarsDemo()
     Display_DrawPanel(
         10,
         145,
-        LCD_WIDTH - 20,
+        Display::width() - 20,
         70,
         Color::Black,
         Color::White,
@@ -59,7 +60,7 @@ void DrawHeaderFooterBarsDemo()
     Display_DrawLabel(
         10,
         145,
-        LCD_WIDTH - 20,
+        Display::width() - 20,
         70,
         "REUSABLE BARS",
         Color::White,

@@ -14,6 +14,7 @@
 #include "Display_ST7789.h"
 #include "Display_GFX.h"
 #include "Display_Widgets.h"
+#include "Display.h"
 
 #include "WidgetDemoPages.h"
 
@@ -24,7 +25,7 @@ void DrawLabelValuesDemo()
     Display_DrawLabel(
         0,
         5,
-        LCD_WIDTH,
+        Display::width(),
         25,
         "LABEL + VALUE",
         Color::White,
@@ -35,7 +36,7 @@ void DrawLabelValuesDemo()
     Display_DrawLabelValue(
         10,
         40,
-        LCD_WIDTH - 20,
+        Display::width() - 20,
         60,
         "TEMPERATURE",
         "72.4 F",
@@ -51,7 +52,7 @@ void DrawLabelValuesDemo()
     Display_DrawLabelValue(
         10,
         110,
-        LCD_WIDTH - 20,
+        Display::width() - 20,
         60,
         "HUMIDITY",
         "48%",
@@ -67,7 +68,7 @@ void DrawLabelValuesDemo()
     Display_DrawLabelValue(
         10,
         180,
-        LCD_WIDTH - 20,
+        Display::width() - 20,
         60,
         "NETWORK",
         "ONLINE",

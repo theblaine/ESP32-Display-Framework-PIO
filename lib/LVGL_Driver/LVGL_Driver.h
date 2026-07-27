@@ -4,10 +4,11 @@
 #include <lv_conf.h>
 #include <demos/lv_demos.h>
 #include <esp_heap_caps.h>
+#include "DisplayConfig.h"
 #include "Display_ST7789.h"
 
-#define LVGL_WIDTH    LCD_WIDTH 
-#define LVGL_HEIGHT   LCD_HEIGHT
+#define LVGL_WIDTH  DisplayConfig::Width
+#define LVGL_HEIGHT DisplayConfig::Height
 #define LVGL_BUF_LEN  (LVGL_WIDTH * LVGL_HEIGHT / 20)
 
 #define EXAMPLE_LVGL_TICK_PERIOD_MS  5

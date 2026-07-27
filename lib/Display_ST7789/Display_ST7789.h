@@ -13,8 +13,6 @@
  * WaveshareDisplayConfig. A later refactor will remove these final aliases
  * when Display_GFX is separated from the concrete driver.
  */
-#define LCD_WIDTH  WaveshareDisplayConfig::Width
-#define LCD_HEIGHT WaveshareDisplayConfig::Height
 
 void LCD_Init(void);
 void LCD_SetCursor(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yend);

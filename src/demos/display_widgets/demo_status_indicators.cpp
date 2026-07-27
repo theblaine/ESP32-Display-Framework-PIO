@@ -14,6 +14,7 @@
 #include "Display_ST7789.h"
 #include "Display_GFX.h"
 #include "Display_Widgets.h"
+#include "Display.h"
 
 #include "WidgetDemoPages.h"
 
@@ -31,11 +32,11 @@ void DrawStatusIndicatorsDemo()
 
     // Circle marker without a marker border.
     Display_DrawPanel(
-        10, 45, LCD_WIDTH - 20, 42,
+        10, 45, Display::width() - 20, 42,
         Color::Black, Color::Green, 8);
 
     Display_DrawStatusIndicator(
-        14, 48, LCD_WIDTH - 28, 36,
+        14, 48, Display::width() - 28, 36,
         "ONLINE",
         Color::Green,
         Color::White,
@@ -45,11 +46,11 @@ void DrawStatusIndicatorsDemo()
 
     // Rounded-square marker with a border.
     Display_DrawPanel(
-        10, 100, LCD_WIDTH - 20, 42,
+        10, 100, Display::width() - 20, 42,
         Color::Black, Color::Yellow, 8);
 
     Display_DrawStatusIndicator(
-        14, 103, LCD_WIDTH - 28, 36,
+        14, 103, Display::width() - 28, 36,
         "WARNING",
         Color::Yellow,
         Color::White,
@@ -61,11 +62,11 @@ void DrawStatusIndicatorsDemo()
 
     // Square marker with a border.
     Display_DrawPanel(
-        10, 155, LCD_WIDTH - 20, 42,
+        10, 155, Display::width() - 20, 42,
         Color::Black, Color::Red, 8);
 
     Display_DrawStatusIndicator(
-        14, 158, LCD_WIDTH - 28, 36,
+        14, 158, Display::width() - 28, 36,
         "OFFLINE",
         Color::Red,
         Color::White,
@@ -77,11 +78,11 @@ void DrawStatusIndicatorsDemo()
 
     // Another circular marker demonstrates a neutral/info state.
     Display_DrawPanel(
-        10, 210, LCD_WIDTH - 20, 42,
+        10, 210, Display::width() - 20, 42,
         Color::Black, Color::Cyan, 8);
 
     Display_DrawStatusIndicator(
-        14, 213, LCD_WIDTH - 28, 36,
+        14, 213, Display::width() - 28, 36,
         "STANDBY",
         Color::Cyan,
         Color::White,

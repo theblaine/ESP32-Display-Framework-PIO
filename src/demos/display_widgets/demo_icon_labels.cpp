@@ -15,6 +15,7 @@
 #include "Display_ST7789.h"
 #include "Display_GFX.h"
 #include "Display_Widgets.h"
+#include "Display.h"
 
 #include "WidgetDemoPages.h"
 
@@ -51,7 +52,7 @@ void DrawIconLabelsDemo()
         Display_DrawPanel(
             10,
             row.y,
-            LCD_WIDTH - 20,
+            Display::width() - 20,
             38,
             Color::Black,
             row.color,
@@ -60,7 +61,7 @@ void DrawIconLabelsDemo()
         Display_DrawIconLabel(
             13,
             row.y + 3,
-            LCD_WIDTH - 26,
+            Display::width() - 26,
             32,
             row.icon,
             row.text,

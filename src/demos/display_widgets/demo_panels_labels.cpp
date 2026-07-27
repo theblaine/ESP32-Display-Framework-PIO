@@ -13,6 +13,7 @@
 #include "Display_ST7789.h"
 #include "Display_GFX.h"
 #include "Display_Widgets.h"
+#include "Display.h"
 
 #include "WidgetDemoPages.h"
 
@@ -24,7 +25,7 @@ void DrawPanelsAndLabelsDemo()
     Display_DrawPanel(
         10,
         10,
-        LCD_WIDTH - 20,
+        Display::width() - 20,
         45,
         Color::Black,
         Color::White);
@@ -32,7 +33,7 @@ void DrawPanelsAndLabelsDemo()
     Display_DrawLabel(
         10,
         10,
-        LCD_WIDTH - 20,
+        Display::width() - 20,
         45,
         "RADIUS 0",
         Color::White,
@@ -43,7 +44,7 @@ void DrawPanelsAndLabelsDemo()
     Display_DrawPanel(
         10,
         70,
-        LCD_WIDTH - 20,
+        Display::width() - 20,
         45,
         Color::Black,
         Color::Cyan,
@@ -52,7 +53,7 @@ void DrawPanelsAndLabelsDemo()
     Display_DrawLabel(
         10,
         70,
-        LCD_WIDTH - 20,
+        Display::width() - 20,
         45,
         "RADIUS 4",
         Color::Cyan,
@@ -63,7 +64,7 @@ void DrawPanelsAndLabelsDemo()
     Display_DrawPanel(
         10,
         130,
-        LCD_WIDTH - 20,
+        Display::width() - 20,
         45,
         Color::Black,
         Color::Yellow,
@@ -72,7 +73,7 @@ void DrawPanelsAndLabelsDemo()
     Display_DrawLabel(
         10,
         130,
-        LCD_WIDTH - 20,
+        Display::width() - 20,
         45,
         "RADIUS 8",
         Color::Yellow,
@@ -83,7 +84,7 @@ void DrawPanelsAndLabelsDemo()
     Display_DrawPanel(
         10,
         190,
-        LCD_WIDTH - 20,
+        Display::width() - 20,
         45,
         Color::Green,
         Color::White,
@@ -92,7 +93,7 @@ void DrawPanelsAndLabelsDemo()
     Display_DrawLabel(
         10,
         190,
-        LCD_WIDTH - 20,
+        Display::width() - 20,
         45,
         "RADIUS 16",
         Color::White,

@@ -11,7 +11,11 @@ namespace
 
     uint8_t CurrentBrightness = 100;
 
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
     SPIClass LCDspi(FSPI);
+#else
+    SPIClass LCDspi(VSPI);
+#endif
 
     void SPI_Init()
     {
@@ -64,8 +68,8 @@ namespace
     }
 
     void LCD_WriteDataBytes(
-        uint8_t* writeData,
-        uint8_t* readData,
+        uint8_t *writeData,
+        uint8_t *readData,
         uint32_t size)
     {
         LCDspi.beginTransaction(
@@ -218,31 +222,41 @@ void LCD_SetCursor(
 {
     if (DisplayConfig::Horizontal)
     {
+        const uint16_t columnStart = xStart + DisplayConfig::OffsetX;
+        const uint16_t columnEnd = xEnd + DisplayConfig::OffsetX;
+        const uint16_t rowStart = yStart + DisplayConfig::OffsetY;
+        const uint16_t rowEnd = yEnd + DisplayConfig::OffsetY;
+
         LCD_WriteCommand(0x2A);
-        LCD_WriteData(xStart >> 8);
-        LCD_WriteData(xStart + DisplayConfig::OffsetX);
-        LCD_WriteData(xEnd >> 8);
-        LCD_WriteData(xEnd + DisplayConfig::OffsetX);
+        LCD_WriteData(columnStart >> 8);
+        LCD_WriteData(columnStart & 0xFF);
+        LCD_WriteData(columnEnd >> 8);
+        LCD_WriteData(columnEnd & 0xFF);
 
         LCD_WriteCommand(0x2B);
-        LCD_WriteData(yStart >> 8);
-        LCD_WriteData(yStart + DisplayConfig::OffsetY);
-        LCD_WriteData(yEnd >> 8);
-        LCD_WriteData(yEnd + DisplayConfig::OffsetY);
+        LCD_WriteData(rowStart >> 8);
+        LCD_WriteData(rowStart & 0xFF);
+        LCD_WriteData(rowEnd >> 8);
+        LCD_WriteData(rowEnd & 0xFF);
     }
     else
     {
+        const uint16_t columnStart = yStart + DisplayConfig::OffsetY;
+        const uint16_t columnEnd = yEnd + DisplayConfig::OffsetY;
+        const uint16_t rowStart = xStart + DisplayConfig::OffsetX;
+        const uint16_t rowEnd = xEnd + DisplayConfig::OffsetX;
+
         LCD_WriteCommand(0x2A);
-        LCD_WriteData(yStart >> 8);
-        LCD_WriteData(yStart + DisplayConfig::OffsetY);
-        LCD_WriteData(yEnd >> 8);
-        LCD_WriteData(yEnd + DisplayConfig::OffsetY);
+        LCD_WriteData(columnStart >> 8);
+        LCD_WriteData(columnStart & 0xFF);
+        LCD_WriteData(columnEnd >> 8);
+        LCD_WriteData(columnEnd & 0xFF);
 
         LCD_WriteCommand(0x2B);
-        LCD_WriteData(xStart >> 8);
-        LCD_WriteData(xStart + DisplayConfig::OffsetX);
-        LCD_WriteData(xEnd >> 8);
-        LCD_WriteData(xEnd + DisplayConfig::OffsetX);
+        LCD_WriteData(rowStart >> 8);
+        LCD_WriteData(rowStart & 0xFF);
+        LCD_WriteData(rowEnd >> 8);
+        LCD_WriteData(rowEnd & 0xFF);
     }
 
     LCD_WriteCommand(0x2C);
@@ -253,7 +267,7 @@ void LCD_addWindow(
     uint16_t yStart,
     uint16_t xEnd,
     uint16_t yEnd,
-    uint16_t* color)
+    uint16_t *color)
 {
     const uint16_t width = xEnd - xStart + 1;
     const uint16_t height = yEnd - yStart + 1;
@@ -263,11 +277,11 @@ void LCD_addWindow(
         sizeof(uint16_t);
 
     uint8_t readData[numberOfBytes];
-
+    
     LCD_SetCursor(xStart, yStart, xEnd, yEnd);
 
     LCD_WriteDataBytes(
-        reinterpret_cast<uint8_t*>(color),
+        reinterpret_cast<uint8_t *>(color),
         readData,
         numberOfBytes);
 }

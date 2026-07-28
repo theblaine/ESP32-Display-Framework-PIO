@@ -11,7 +11,11 @@ namespace
 
     uint8_t CurrentBrightness = 100;
 
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
     SPIClass LCDspi(FSPI);
+#else
+    SPIClass LCDspi(VSPI);
+#endif
 
     void SPI_Init()
     {
@@ -64,8 +68,8 @@ namespace
     }
 
     void LCD_WriteDataBytes(
-        uint8_t* writeData,
-        uint8_t* readData,
+        uint8_t *writeData,
+        uint8_t *readData,
         uint32_t size)
     {
         LCDspi.beginTransaction(
@@ -253,7 +257,7 @@ void LCD_addWindow(
     uint16_t yStart,
     uint16_t xEnd,
     uint16_t yEnd,
-    uint16_t* color)
+    uint16_t *color)
 {
     const uint16_t width = xEnd - xStart + 1;
     const uint16_t height = yEnd - yStart + 1;
@@ -267,7 +271,7 @@ void LCD_addWindow(
     LCD_SetCursor(xStart, yStart, xEnd, yEnd);
 
     LCD_WriteDataBytes(
-        reinterpret_cast<uint8_t*>(color),
+        reinterpret_cast<uint8_t *>(color),
         readData,
         numberOfBytes);
 }

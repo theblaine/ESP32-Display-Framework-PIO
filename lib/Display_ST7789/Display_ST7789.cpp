@@ -122,15 +122,7 @@ void LCD_Init(void)
     delay(120);
 
     LCD_WriteCommand(0x36);
-
-    if (DisplayConfig::Horizontal)
-    {
-        LCD_WriteData(0x00);
-    }
-    else
-    {
-        LCD_WriteData(0x70);
-    }
+    LCD_WriteData(DisplayConfig::MemoryAccessControl);
 
     LCD_WriteCommand(0x3A);
     LCD_WriteData(0x05);
@@ -277,7 +269,7 @@ void LCD_addWindow(
         sizeof(uint16_t);
 
     uint8_t readData[numberOfBytes];
-    
+
     LCD_SetCursor(xStart, yStart, xEnd, yEnd);
 
     LCD_WriteDataBytes(

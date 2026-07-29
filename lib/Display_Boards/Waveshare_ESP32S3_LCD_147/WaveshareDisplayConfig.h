@@ -33,6 +33,7 @@ namespace WaveshareDisplayConfig
 
     // Panel addressing and orientation.
     inline constexpr bool Horizontal = true;
+    inline constexpr uint8_t MemoryAccessControl = 0xC0;
     inline constexpr uint16_t OffsetX = 34;
     inline constexpr uint16_t OffsetY = 0;
 }

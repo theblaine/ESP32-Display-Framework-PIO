@@ -541,8 +541,11 @@ int16_t Display_GetTextWidth(const char* text, uint8_t scale)
     }
 
     return static_cast<int16_t>(
-        characterCount *
-        (FontWidth + CharacterSpacing) *
+        (
+            characterCount *
+            (FontWidth + CharacterSpacing) -
+            CharacterSpacing
+        ) *
         scale);
 }
 

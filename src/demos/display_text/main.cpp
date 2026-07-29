@@ -51,7 +51,7 @@ void setup()
         "ESP32-S3",
         Color::Cyan,
         Color::Black,
-        3);
+        2);
 }
 
 void loop()

@@ -33,6 +33,7 @@ namespace TTGODisplayConfig
 
     // Panel addressing and orientation.
     inline constexpr bool Horizontal = true;
-    inline constexpr uint16_t OffsetX = 52;
+    inline constexpr uint8_t MemoryAccessControl = 0xC0;
+    inline constexpr uint16_t OffsetX = 53;
     inline constexpr uint16_t OffsetY = 40;
 }

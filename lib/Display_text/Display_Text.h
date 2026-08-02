@@ -34,9 +34,39 @@ void Display_DrawTextRight(
     uint16_t backgroundColor,
     uint8_t scale = 1);
 
+void Display_DrawTextWrapped(
+    int16_t x,
+    int16_t y,
+    int16_t maxWidth,
+    const char* text,
+    uint16_t textColor,
+    uint16_t backgroundColor,
+    uint8_t scale);
+
+void Display_DrawTextWrapped(
+    int16_t x,
+    int16_t y,
+    int16_t maxWidth,
+    const char *text,
+    uint16_t textColor,
+    uint16_t backgroundColor,
+    uint8_t scale = 1);
+
 int16_t Display_GetTextWidth(
     const char* text,
     uint8_t scale = 1);
+
+int16_t Display_GetLineHeight(
+    uint8_t scale);
+
+void Display_DrawTextWrapped(
+    int16_t x,
+    int16_t y,
+    int16_t maxWidth,
+    const char *text,
+    uint16_t textColor,
+    uint16_t backgroundColor,
+    uint8_t scale);
 
 void Display_SetCursor(
     int16_t x,

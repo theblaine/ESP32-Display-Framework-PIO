@@ -1002,16 +1002,15 @@ void Display_ShowStatusScreen(
         Display_StatusMarkerShape::Circle,
         2);
 
-    if (detailText != nullptr)
-    {
-        Display_DrawLabel(
-            10,
-            120,
-            DisplayConfig::Width - 20,
-            40,
-            detailText,
-            Color::Cyan,
-            Color::Black,
-            2);
-    }
+if (detailText != nullptr)
+{
+    Display_DrawTextWrapped(
+        10,
+        120,
+        DisplayConfig::Width - 20,
+        detailText,
+        Color::Cyan,
+        Color::Black,
+        2);
+}
 }

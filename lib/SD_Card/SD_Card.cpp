@@ -117,3 +117,48 @@ void Flash_test()
 
   printf("/******* RAM Test Over********/\r\n\r\n");
 }
+
+
+bool SD_IsMounted()
+{
+    return SD_MMC.cardType() != CARD_NONE;
+}
+
+bool SD_FileExists(
+    const char* path)
+{
+    return SD_MMC.exists(path);
+}
+
+bool SD_ReadTextFile(
+    const char* path,
+    String& contents)
+{
+    if (path == nullptr)
+    {
+        return false;
+    }
+
+    File file = SD_MMC.open(path, FILE_READ);
+
+    if (!file || file.isDirectory())
+    {
+        if (file)
+        {
+            file.close();
+        }
+
+        return false;
+    }
+
+    contents = "";
+
+    while (file.available())
+    {
+        contents += static_cast<char>(file.read());
+    }
+
+    file.close();
+
+    return true;
+}

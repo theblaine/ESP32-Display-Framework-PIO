@@ -48,3 +48,30 @@ void RGB_Lamp_Loop(uint16_t Waiting)
     Set_Color( RGB_Data[Number][0]*3, RGB_Data[Number][1]*3, RGB_Data[Number][2]*3);  // Color
   }
 }
+
+namespace RGBLamp
+{
+    void begin()
+    {
+        off();
+    }
+
+    void setColor(
+        uint8_t red,
+        uint8_t green,
+        uint8_t blue)
+    {
+        Set_Color(
+            red,
+            green,
+            blue);
+    }
+
+    void off()
+    {
+        Set_Color(
+            0,
+            0,
+            0);
+    }
+}

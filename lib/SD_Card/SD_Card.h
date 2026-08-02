@@ -17,6 +17,19 @@ extern uint16_t Flash_Size;
 void SD_Init();
 void Flash_test();
 
+bool SD_IsMounted();
+
+bool SD_FileExists(
+    const char* path);
+
+bool SD_ReadTextFile(
+    const char* path,
+    String& contents);
+
+bool SD_WriteTextFile(
+    const char* path,
+    const char* contents);
+
 bool File_Search(const char* directory, const char* fileName);
 uint16_t Folder_retrieval(const char* directory, const char* fileExtension, char File_Name[][100],uint16_t maxFiles);
 void remove_file_extension(char *file_name);

@@ -9,7 +9,7 @@
 
 namespace
 {
-    constexpr const char* MESSAGE_FILE_PATH = "/message.txt";
+    constexpr const char *MESSAGE_FILE_PATH = "/message.txt";
 
     String formatCardSize(uint64_t totalBytes)
     {
@@ -19,65 +19,28 @@ namespace
         return String(totalMegabytes) + " MB";
     }
 
-    const char* cardTypeToString(uint8_t cardType)
+    const char *cardTypeToString(uint8_t cardType)
     {
         switch (cardType)
         {
-            case CARD_MMC:
-                return "MMC";
+        case CARD_MMC:
+            return "MMC";
 
-            case CARD_SD:
-                return "SDSC";
+        case CARD_SD:
+            return "SDSC";
 
-            case CARD_SDHC:
-                return "SDHC";
+        case CARD_SDHC:
+            return "SDHC";
 
-            case CARD_NONE:
-                return "None";
+        case CARD_NONE:
+            return "None";
 
-            default:
-                return "Unknown";
+        default:
+            return "Unknown";
         }
-    }
-
-    bool readTextFile(
-        const char* path,
-        String& contents)
-    {
-        File file = SD_MMC.open(path, FILE_READ);
-
-        if (!file)
-        {
-            LOGEF(
-                "Unable to open file: %s",
-                path);
-
-            return false;
-        }
-
-        if (file.isDirectory())
-        {
-            LOGEF(
-                "Path is a directory: %s",
-                path);
-
-            file.close();
-            return false;
-        }
-
-        contents = "";
-
-        while (file.available())
-        {
-            contents +=
-                static_cast<char>(file.read());
-        }
-
-        file.close();
-
-        return true;
     }
 }
+
 
 void setup()
 {
@@ -130,7 +93,7 @@ void setup()
 
     String fileContents;
 
-    if (!readTextFile(
+    if (!SD_ReadTextFile(
             MESSAGE_FILE_PATH,
             fileContents))
     {

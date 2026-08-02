@@ -35,7 +35,7 @@ unsigned long lastColorChange = 0;
 
 void showColor(const Color& color)
 {
-    Set_Color(color.red, color.green, color.blue);
+    RGBLamp::setColor(color.red, color.green, color.blue);
 
     LOGF(
         "RGB LED: %-8s | R=%3u G=%3u B=%3u",

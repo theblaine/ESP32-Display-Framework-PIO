@@ -6,9 +6,37 @@
 #include "Display_Widgets.h"
 #include "RGB_lamp.h"
 
+#include "secrets.h"
+
+#include "NetworkService.h"
+
 namespace
 {
     constexpr unsigned long PAGE_DURATION_MS = 10000;
+
+    struct HomeAssistantData
+    {
+        String garage = "Closed";
+        String alarm = "Disarmed";
+        String indoorTemperature = "72 F";
+        String humidity = "41%";
+    };
+
+    struct FlightRadarData
+    {
+        String feed = "Online";
+        String aircraft = "18";
+        String mlat = "Yes";
+        String updated = "5 sec";
+    };
+
+    struct PiHoleData
+    {
+        String status = "Online";
+        String queries = "12,438";
+        String blocked = "8.4%";
+        String clients = "27";
+    };
 
     enum class DashboardPage : uint8_t
     {
@@ -18,18 +46,31 @@ namespace
         Count
     };
 
-    DashboardPage g_currentPage = DashboardPage::HomeAssistant;
+    HomeAssistantData g_homeAssistantData;
+    FlightRadarData g_flightRadarData;
+    PiHoleData g_piHoleData;
+
+    DashboardPage g_currentPage =
+        DashboardPage::HomeAssistant;
+
     unsigned long g_lastPageChangeTime = 0;
 
     void drawHomeAssistantPage()
     {
         const Display_TableRow rows[] =
-        {
-            {"Garage", "Closed", Color::Green},
-            {"Alarm", "Disarmed", Color::Green},
-            {"Indoor", "72 F", Color::Cyan},
-            {"Humidity", "41%", Color::Cyan}
-        };
+            {
+                {"Garage",
+                 g_homeAssistantData.garage.c_str(),
+                 Color::Green},
+                {"Alarm",
+                 g_homeAssistantData.alarm.c_str(),
+                 Color::Green},
+                {"Indoor",
+                 g_homeAssistantData.indoorTemperature.c_str(),
+                 Color::Cyan},
+                {"Humidity",
+                 g_homeAssistantData.humidity.c_str(),
+                 Color::Cyan}};
 
         Display_FillScreen(Color::Black);
 
@@ -54,7 +95,10 @@ namespace
             Color::Cyan,
             1);
 
-        RGBLamp::setColor(0, 64, 0);
+        RGBLamp::setColor(
+            0,
+            64,
+            0);
 
         LOG("Displayed Home Assistant page.");
     }
@@ -62,12 +106,19 @@ namespace
     void drawFlightRadarPage()
     {
         const Display_TableRow rows[] =
-        {
-            {"Feed", "Online", Color::Green},
-            {"Aircraft", "18", Color::Cyan},
-            {"MLAT", "Yes", Color::Green},
-            {"Updated", "5 sec", Color::White}
-        };
+            {
+                {"Feed",
+                 g_flightRadarData.feed.c_str(),
+                 Color::Green},
+                {"Aircraft",
+                 g_flightRadarData.aircraft.c_str(),
+                 Color::Cyan},
+                {"MLAT",
+                 g_flightRadarData.mlat.c_str(),
+                 Color::Green},
+                {"Updated",
+                 g_flightRadarData.updated.c_str(),
+                 Color::White}};
 
         Display_FillScreen(Color::Black);
 
@@ -92,7 +143,10 @@ namespace
             Color::Cyan,
             1);
 
-        RGBLamp::setColor(0, 32, 64);
+        RGBLamp::setColor(
+            0,
+            32,
+            64);
 
         LOG("Displayed FlightRadar24 page.");
     }
@@ -100,12 +154,19 @@ namespace
     void drawPiHolePage()
     {
         const Display_TableRow rows[] =
-        {
-            {"Status", "Online", Color::Green},
-            {"Queries", "12,438", Color::Cyan},
-            {"Blocked", "8.4%", Color::Yellow},
-            {"Clients", "27", Color::White}
-        };
+            {
+                {"Status",
+                 g_piHoleData.status.c_str(),
+                 Color::Green},
+                {"Queries",
+                 g_piHoleData.queries.c_str(),
+                 Color::Cyan},
+                {"Blocked",
+                 g_piHoleData.blocked.c_str(),
+                 Color::Yellow},
+                {"Clients",
+                 g_piHoleData.clients.c_str(),
+                 Color::White}};
 
         Display_FillScreen(Color::Black);
 
@@ -130,7 +191,10 @@ namespace
             Color::Cyan,
             1);
 
-        RGBLamp::setColor(64, 0, 64);
+        RGBLamp::setColor(
+            64,
+            0,
+            64);
 
         LOG("Displayed Pi-hole page.");
     }
@@ -139,20 +203,20 @@ namespace
     {
         switch (g_currentPage)
         {
-            case DashboardPage::HomeAssistant:
-                drawHomeAssistantPage();
-                break;
+        case DashboardPage::HomeAssistant:
+            drawHomeAssistantPage();
+            break;
 
-            case DashboardPage::FlightRadar:
-                drawFlightRadarPage();
-                break;
+        case DashboardPage::FlightRadar:
+            drawFlightRadarPage();
+            break;
 
-            case DashboardPage::PiHole:
-                drawPiHolePage();
-                break;
+        case DashboardPage::PiHole:
+            drawPiHolePage();
+            break;
 
-            case DashboardPage::Count:
-                break;
+        case DashboardPage::Count:
+            break;
         }
     }
 
@@ -187,6 +251,24 @@ void setup()
     Display::begin();
     RGBLamp::begin();
 
+    NetworkService::addNetwork(
+        WIFI_SSID_1,
+        WIFI_PASSWORD_1);
+
+#ifdef WIFI_SSID_2
+    NetworkService::addNetwork(
+        WIFI_SSID_2,
+        WIFI_PASSWORD_2);
+#endif
+
+#ifdef WIFI_SSID_3
+    NetworkService::addNetwork(
+        WIFI_SSID_3,
+        WIFI_PASSWORD_3);
+#endif
+
+    NetworkService::begin();
+
     drawCurrentPage();
 
     g_lastPageChangeTime = millis();
@@ -194,11 +276,15 @@ void setup()
 
 void loop()
 {
+    NetworkService::loop();
+
     const unsigned long currentTime = millis();
 
-    if (currentTime - g_lastPageChangeTime >= PAGE_DURATION_MS)
+    if (currentTime - g_lastPageChangeTime >=
+        PAGE_DURATION_MS)
     {
         g_lastPageChangeTime = currentTime;
+
         advancePage();
     }
 

@@ -9,10 +9,15 @@
 #include "secrets.h"
 
 #include "NetworkService.h"
+#include "MQTTService.h"
 
 namespace
 {
     constexpr unsigned long PAGE_DURATION_MS = 10000;
+
+constexpr const char* MQTT_BROKER = "10.0.0.50";
+constexpr uint16_t MQTT_PORT = 1883;
+constexpr const char* MQTT_CLIENT_ID = "waveshare-home-dashboard";
 
     struct HomeAssistantData
     {
@@ -269,6 +274,11 @@ void setup()
 
     NetworkService::begin();
 
+    MQTTService::begin(
+    MQTT_BROKER,
+    MQTT_PORT,
+    MQTT_CLIENT_ID);
+
     drawCurrentPage();
 
     g_lastPageChangeTime = millis();
@@ -277,6 +287,7 @@ void setup()
 void loop()
 {
     NetworkService::loop();
+    MQTTService::loop();
 
     const unsigned long currentTime = millis();
 

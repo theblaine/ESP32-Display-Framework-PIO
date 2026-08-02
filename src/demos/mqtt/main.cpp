@@ -146,11 +146,14 @@ namespace
                 LOGW("Subscription failed.");
             }
 
-            showStatus(
-                "MQTT",
-                "Connected",
-                Color::Green,
-                MQTT_TOPIC);
+            Display_StatusScreenData screen =
+                {
+                    "MQTT",
+                    "Connected",
+                    Color::Green,
+                    g_lastMqttMessage.c_str()};
+
+            Display_ShowStatusScreen(screen);
         }
         else
         {

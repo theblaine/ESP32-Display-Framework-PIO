@@ -255,6 +255,17 @@ struct Display_TableRow
     uint16_t valueColor = 0;
 };
 
+
+
+struct Display_StatusScreenData
+{
+    const char* title;
+    const char* status;
+    uint16_t    statusColor;
+    const char* detail;
+};
+
+
 /**
  * Draws one two-column label/value table row.
  *
@@ -301,7 +312,7 @@ void Display_DrawTable(
 
 
 
-    
+
 /**
  * Draws a simple full-screen service status page.
  *
@@ -315,3 +326,9 @@ void Display_ShowStatusScreen(
     const char* statusText,
     uint16_t statusColor,
     const char* detailText = nullptr);
+
+/**
+ * Convenience overload that accepts a status screen structure.
+ */
+void Display_ShowStatusScreen(
+    const Display_StatusScreenData& screen);

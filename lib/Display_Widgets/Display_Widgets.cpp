@@ -1014,3 +1014,14 @@ if (detailText != nullptr)
         2);
 }
 }
+
+
+void Display_ShowStatusScreen(
+    const Display_StatusScreenData& screen)
+{
+    Display_ShowStatusScreen(
+        screen.title,
+        screen.status,
+        screen.statusColor,
+        screen.detail);
+}

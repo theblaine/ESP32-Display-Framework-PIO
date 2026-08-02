@@ -7,8 +7,8 @@ namespace NetworkService
     void begin();
 
     void addNetwork(
-        const char* ssid,
-        const char* password);
+        const char *ssid,
+        const char *password);
 
     void loop();
 

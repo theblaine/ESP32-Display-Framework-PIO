@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <ArduinoJson.h>
 
 #include "Logger.h"
 #include "Display.h"
@@ -15,9 +16,12 @@ namespace
 {
     constexpr unsigned long PAGE_DURATION_MS = 10000;
 
-constexpr const char* MQTT_BROKER = "10.0.0.50";
-constexpr uint16_t MQTT_PORT = 1883;
-constexpr const char* MQTT_CLIENT_ID = "waveshare-home-dashboard";
+    constexpr const char *MQTT_BROKER = "10.0.0.50";
+    constexpr uint16_t MQTT_PORT = 1883;
+    constexpr const char *MQTT_CLIENT_ID = "waveshare-home-dashboard";
+
+    constexpr const char *FLIGHTRADAR_TOPIC =
+        "home/dashboard/flightradar";
 
     struct HomeAssistantData
     {
@@ -156,6 +160,94 @@ constexpr const char* MQTT_CLIENT_ID = "waveshare-home-dashboard";
         LOG("Displayed FlightRadar24 page.");
     }
 
+    void handleFlightRadarMessage(
+        const char *payload)
+    {
+        if (payload == nullptr)
+        {
+            return;
+        }
+
+        JsonDocument document;
+
+        const DeserializationError error =
+            deserializeJson(
+                document,
+                payload);
+
+        if (error)
+        {
+            LOGWF(
+                "FlightRadar JSON parse failed: %s",
+                error.c_str());
+
+            return;
+        }
+
+        const char *feed =
+            document["feed"];
+
+        const char *aircraft =
+            document["aircraft"];
+
+        const char *mlat =
+            document["mlat"];
+
+        const char *updated =
+            document["updated"];
+
+        if (feed != nullptr)
+        {
+            g_flightRadarData.feed = feed;
+        }
+
+        if (aircraft != nullptr)
+        {
+            g_flightRadarData.aircraft = aircraft;
+        }
+
+        if (mlat != nullptr)
+        {
+            g_flightRadarData.mlat = mlat;
+        }
+
+        if (updated != nullptr)
+        {
+            g_flightRadarData.updated = updated;
+        }
+
+        LOGF(
+            "FlightRadar updated | Feed: %s | Aircraft: %s | MLAT: %s | Updated: %s",
+            g_flightRadarData.feed.c_str(),
+            g_flightRadarData.aircraft.c_str(),
+            g_flightRadarData.mlat.c_str(),
+            g_flightRadarData.updated.c_str());
+
+        if (g_currentPage ==
+            DashboardPage::FlightRadar)
+        {
+            drawFlightRadarPage();
+        }
+    }
+
+    void handleMqttMessage(
+        const char *topic,
+        const char *payload)
+    {
+        if (topic == nullptr ||
+            payload == nullptr)
+        {
+            return;
+        }
+
+        if (strcmp(
+                topic,
+                FLIGHTRADAR_TOPIC) == 0)
+        {
+            handleFlightRadarMessage(payload);
+        }
+    }
+
     void drawPiHolePage()
     {
         const Display_TableRow rows[] =
@@ -275,9 +367,15 @@ void setup()
     NetworkService::begin();
 
     MQTTService::begin(
-    MQTT_BROKER,
-    MQTT_PORT,
-    MQTT_CLIENT_ID);
+        MQTT_BROKER,
+        MQTT_PORT,
+        MQTT_CLIENT_ID);
+
+    MQTTService::setMessageCallback(
+        handleMqttMessage);
+
+    MQTTService::subscribe(
+        FLIGHTRADAR_TOPIC);
 
     drawCurrentPage();
 

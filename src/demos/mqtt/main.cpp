@@ -2,6 +2,7 @@
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <PubSubClient.h>
+#include <ArduinoJson.h>
 
 #include "Logger.h"
 #include "Display.h"
@@ -26,6 +27,7 @@ namespace
 
     unsigned long g_lastWiFiServiceTime = 0;
     unsigned long g_lastMqttAttemptTime = 0;
+
     String g_lastMqttMessage = "Waiting...";
 
     void showStatus(
@@ -41,16 +43,152 @@ namespace
             detailText);
     }
 
+    uint16_t statusColorFromText(const char *colorText)
+    {
+        if (colorText == nullptr)
+        {
+            return Color::Green;
+        }
+
+        if (strcasecmp(colorText, "red") == 0)
+        {
+            return Color::Red;
+        }
+
+        if (strcasecmp(colorText, "yellow") == 0)
+        {
+            return Color::Yellow;
+        }
+
+        if (strcasecmp(colorText, "blue") == 0)
+        {
+            return Color::Blue;
+        }
+
+        if (strcasecmp(colorText, "cyan") == 0)
+        {
+            return Color::Cyan;
+        }
+
+        if (strcasecmp(colorText, "magenta") == 0)
+        {
+            return Color::Magenta;
+        }
+
+        if (strcasecmp(colorText, "white") == 0)
+        {
+            return Color::White;
+        }
+
+        return Color::Green;
+    }
+
+    void processMqttMessage(
+        const char *topic,
+        const char *message)
+    {
+        if (message == nullptr)
+        {
+            return;
+        }
+
+        JsonDocument document;
+
+        const DeserializationError error =
+            deserializeJson(document, message);
+
+        if (error)
+        {
+            LOGWF(
+                "JSON parse failed; displaying plain text: %s",
+                error.c_str());
+
+            g_lastMqttMessage = message;
+
+Display_StatusScreenData screen =
+{
+    "MQTT",
+    "Connected",
+    g_lastMqttMessage,
+    Color::Green
+};
+
+            Display_ShowStatusScreen(screen);
+            return;
+        }
+
+        const char *title =
+            document["title"] | "MQTT";
+
+        const char *status =
+            document["status"] | "Connected";
+
+        const char *detail =
+            document["detail"] | "";
+
+        const char *colorText =
+            document["color"] | "green";
+
+        const uint16_t statusColor =
+            statusColorFromText(colorText);
+
+        LOGF(
+            "JSON display | Title: %s | Status: %s | Color: %s",
+            title,
+            status,
+            colorText);
+
+        Display_StatusScreenData screen =
+        {
+            title,
+            status,
+            detail,
+            statusColor
+        };
+
+        Display_ShowStatusScreen(screen);
+    }
+
+    void mqttCallback(
+        char *topic,
+        byte *payload,
+        unsigned int length)
+    {
+        String receivedMessage;
+        receivedMessage.reserve(length);
+
+        for (unsigned int index = 0; index < length; index++)
+        {
+            receivedMessage +=
+                static_cast<char>(payload[index]);
+        }
+
+        LOGF(
+            "MQTT [%s] %s",
+            topic,
+            receivedMessage.c_str());
+
+        processMqttMessage(
+            topic,
+            receivedMessage.c_str());
+    }
+
     void addConfiguredNetworks()
     {
-        g_wifiMulti.addAP(WIFI_SSID_1, WIFI_PASSWORD_1);
+        g_wifiMulti.addAP(
+            WIFI_SSID_1,
+            WIFI_PASSWORD_1);
 
 #ifdef WIFI_SSID_2
-        g_wifiMulti.addAP(WIFI_SSID_2, WIFI_PASSWORD_2);
+        g_wifiMulti.addAP(
+            WIFI_SSID_2,
+            WIFI_PASSWORD_2);
 #endif
 
 #ifdef WIFI_SSID_3
-        g_wifiMulti.addAP(WIFI_SSID_3, WIFI_PASSWORD_3);
+        g_wifiMulti.addAP(
+            WIFI_SSID_3,
+            WIFI_PASSWORD_3);
 #endif
     }
 
@@ -63,7 +201,8 @@ namespace
             return true;
         }
 
-        if (currentTime - g_lastWiFiServiceTime < WIFI_SERVICE_INTERVAL_MS)
+        if (currentTime - g_lastWiFiServiceTime <
+            WIFI_SERVICE_INTERVAL_MS)
         {
             return false;
         }
@@ -77,11 +216,13 @@ namespace
 
         const wl_status_t status =
             static_cast<wl_status_t>(
-                g_wifiMulti.run(WIFI_CONNECT_TIMEOUT_MS));
+                g_wifiMulti.run(
+                    WIFI_CONNECT_TIMEOUT_MS));
 
         if (status == WL_CONNECTED)
         {
-            const String ipAddress = WiFi.localIP().toString();
+            const String ipAddress =
+                WiFi.localIP().toString();
 
             LOGF(
                 "Wi-Fi connected | SSID: %s | IP: %s",
@@ -115,7 +256,8 @@ namespace
 
         const unsigned long currentTime = millis();
 
-        if (currentTime - g_lastMqttAttemptTime < MQTT_RETRY_INTERVAL_MS)
+        if (currentTime - g_lastMqttAttemptTime <
+            MQTT_RETRY_INTERVAL_MS)
         {
             return;
         }
@@ -139,19 +281,22 @@ namespace
 
             if (g_mqttClient.subscribe(MQTT_TOPIC))
             {
-                LOGF("Subscribed to %s", MQTT_TOPIC);
+                LOGF(
+                    "Subscribed to %s",
+                    MQTT_TOPIC);
             }
             else
             {
                 LOGW("Subscription failed.");
             }
 
-            Display_StatusScreenData screen =
-                {
-                    "MQTT",
-                    "Connected",
-                    Color::Green,
-                    g_lastMqttMessage.c_str()};
+Display_StatusScreenData screen =
+{
+    "MQTT",
+    "Connected",
+    g_lastMqttMessage,
+    Color::Green
+};
 
             Display_ShowStatusScreen(screen);
         }
@@ -168,30 +313,6 @@ namespace
                 MQTT_BROKER);
         }
     }
-
-    void mqttCallback(char *topic, byte *payload, unsigned int length)
-    {
-        String receivedMessage;
-
-        for (unsigned int i = 0; i < length; i++)
-        {
-            receivedMessage += static_cast<char>(payload[i]);
-        }
-
-        g_lastMqttMessage = receivedMessage;
-
-        LOGF(
-            "MQTT [%s] %s",
-            topic,
-            receivedMessage.c_str());
-
-        showStatus(
-            "MQTT",
-            "Connected",
-            Color::Green,
-            g_lastMqttMessage.c_str());
-    }
-
 }
 
 void setup()
@@ -201,7 +322,7 @@ void setup()
     Logger::begin();
 
     LOG("=====================================");
-    LOG(" ESP32-S3 MQTT Demo");
+    LOG(" ESP32-S3 MQTT JSON Demo");
     LOG("=====================================");
 
     Display::begin();
@@ -216,7 +337,8 @@ void setup()
         MQTT_BROKER,
         MQTT_PORT);
 
-    g_mqttClient.setCallback(mqttCallback);
+    g_mqttClient.setCallback(
+        mqttCallback);
 
     showStatus(
         "WiFi",

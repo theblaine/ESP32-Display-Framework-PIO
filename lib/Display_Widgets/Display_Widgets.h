@@ -259,10 +259,10 @@ struct Display_TableRow
 
 struct Display_StatusScreenData
 {
-    const char* title;
-    const char* status;
-    uint16_t    statusColor;
-    const char* detail;
+    String title;
+    String status;
+    String detail;
+    uint16_t statusColor;
 };
 
 

@@ -1020,8 +1020,8 @@ void Display_ShowStatusScreen(
     const Display_StatusScreenData& screen)
 {
     Display_ShowStatusScreen(
-        screen.title,
-        screen.status,
+        screen.title.c_str(),
+        screen.status.c_str(),
         screen.statusColor,
-        screen.detail);
+        screen.detail.c_str());
 }

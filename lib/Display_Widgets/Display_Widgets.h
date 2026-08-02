@@ -298,3 +298,20 @@ void Display_DrawTable(
     uint8_t textScale = 1,
     int16_t labelColumnWidth = 0,
     bool drawColumnDivider = true);
+
+
+
+    
+/**
+ * Draws a simple full-screen service status page.
+ *
+ * title is shown at the top of the screen.
+ * statusText is shown beneath it using statusColor.
+ * detailText is optional and may contain an IP address, topic, filename,
+ * or other supporting information.
+ */
+void Display_ShowStatusScreen(
+    const char* title,
+    const char* statusText,
+    uint16_t statusColor,
+    const char* detailText = nullptr);

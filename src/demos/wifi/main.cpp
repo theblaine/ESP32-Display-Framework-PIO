@@ -6,6 +6,7 @@
 #include "Display.h"
 #include "Display_GFX.h"
 #include "Display_Text.h"
+#include "Display_Widgets.h"
 #include "secrets.h"
 
 namespace
@@ -21,6 +22,18 @@ namespace
 
     wl_status_t previousStatus = WL_DISCONNECTED;
     bool statusInitialized = false;
+
+    void showWiFiStatus(
+        const char *statusText,
+        uint16_t statusColor,
+        const char *detailText = nullptr)
+    {
+        Display_ShowStatusScreen(
+            "WiFi",
+            statusText,
+            statusColor,
+            detailText);
+    }
 
     const char *wifiStatusToString(wl_status_t status)
     {
@@ -65,31 +78,12 @@ namespace
         LOGF("DNS        : %s", WiFi.dnsIP().toString().c_str());
         LOGF("RSSI       : %d dBm", WiFi.RSSI());
 
-        Display_FillScreen(Color::Black);
+        const String ipAddress = WiFi.localIP().toString();
 
-        Display_DrawText(
-            10,
-            10,
-            "WiFi",
-            Color::White,
-            Color::Black,
-            2);
-
-        Display_DrawText(
-            10,
-            45,
+        showWiFiStatus(
             "Connected",
             Color::Green,
-            Color::Black,
-            2);
-
-        Display_DrawText(
-            10,
-            80,
-            WiFi.localIP().toString().c_str(),
-            Color::Cyan,
-            Color::Black,
-            2);
+            ipAddress.c_str());
     }
 
     void handleWiFiStatus(wl_status_t currentStatus)
@@ -231,23 +225,10 @@ void setup()
     LOG("=====================================");
 
     Display::begin();
-    Display_FillScreen(Color::Black);
 
-    Display_DrawText(
-        10,
-        10,
-        "WiFi",
-        Color::White,
-        Color::Black,
-        2);
-
-    Display_DrawText(
-        10,
-        45,
-        "Connecting...",
-        Color::Yellow,
-        Color::Black,
-        2);
+    showWiFiStatus(
+        "Connecting",
+        Color::Yellow);
 
     /*
      * Station mode connects the ESP32 to an existing wireless network.

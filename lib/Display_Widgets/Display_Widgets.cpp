@@ -966,3 +966,52 @@ void Display_DrawTable(
     // the bottom edge of the table.
     Display_DrawRect(x, y, width, tableHeight, borderColor);
 }
+
+
+
+void Display_ShowStatusScreen(
+    const char* title,
+    const char* statusText,
+    uint16_t statusColor,
+    const char* detailText)
+{
+    if (title == nullptr || statusText == nullptr)
+    {
+        return;
+    }
+
+    Display_FillScreen(Color::Black);
+
+    Display_DrawHeaderBar(
+        title,
+        Color::Blue,
+        Color::White,
+        Color::White,
+        2,
+        34);
+
+    Display_DrawStatusIndicator(
+        12,
+        60,
+        DisplayConfig::Width - 24,
+        42,
+        statusText,
+        statusColor,
+        Color::White,
+        Color::Black,
+        Display_StatusMarkerShape::Circle,
+        2);
+
+    if (detailText != nullptr)
+    {
+        Display_DrawLabel(
+            10,
+            120,
+            DisplayConfig::Width - 20,
+            40,
+            detailText,
+            Color::Cyan,
+            Color::Black,
+            2);
+    }
+}

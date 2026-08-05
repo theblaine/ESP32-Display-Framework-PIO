@@ -16,15 +16,23 @@ namespace
 {
     constexpr unsigned long PAGE_DURATION_MS = 10000;
 
-    constexpr const char *MQTT_BROKER = "10.0.0.50";
-    constexpr uint16_t MQTT_PORT = 1883;
-    constexpr const char *MQTT_CLIENT_ID = "waveshare-home-dashboard";
+    constexpr const char *MQTT_BROKER =
+        "10.0.0.50";
+
+    constexpr uint16_t MQTT_PORT =
+        1883;
+
+    constexpr const char *MQTT_CLIENT_ID =
+        "waveshare-home-dashboard";
 
     constexpr const char *FLIGHTRADAR_TOPIC =
         "home/dashboard/flightradar";
 
     constexpr const char *HOME_ASSISTANT_TOPIC =
         "home/dashboard/homeassistant";
+
+    constexpr const char *PIHOLE_TOPIC =
+        "home/dashboard/pihole";
 
     struct HomeAssistantData
     {
@@ -70,21 +78,30 @@ namespace
     void drawHomeAssistantPage()
     {
         const Display_TableRow rows[] =
+        {
             {
-                {"Plug 13",
-                 g_homeAssistantData.sparePlug13.c_str(),
-                 g_homeAssistantData.sparePlug13 == "ON"
-                     ? Color::Green
-                     : Color::Red},
-                {"Alarm",
-                 g_homeAssistantData.alarm.c_str(),
-                 Color::Green},
-                {"Indoor",
-                 g_homeAssistantData.indoorTemperature.c_str(),
-                 Color::Cyan},
-                {"Humidity",
-                 g_homeAssistantData.humidity.c_str(),
-                 Color::Cyan}};
+                "Plug 13",
+                g_homeAssistantData.sparePlug13.c_str(),
+                g_homeAssistantData.sparePlug13 == "ON"
+                    ? Color::Green
+                    : Color::Red
+            },
+            {
+                "Alarm",
+                g_homeAssistantData.alarm.c_str(),
+                Color::Green
+            },
+            {
+                "Indoor",
+                g_homeAssistantData.indoorTemperature.c_str(),
+                Color::Cyan
+            },
+            {
+                "Humidity",
+                g_homeAssistantData.humidity.c_str(),
+                Color::Cyan
+            }
+        };
 
         Display_FillScreen(Color::Black);
 
@@ -164,19 +181,28 @@ namespace
     void drawFlightRadarPage()
     {
         const Display_TableRow rows[] =
+        {
             {
-                {"Feed",
-                 g_flightRadarData.feed.c_str(),
-                 Color::Green},
-                {"Aircraft",
-                 g_flightRadarData.aircraft.c_str(),
-                 Color::Cyan},
-                {"MLAT",
-                 g_flightRadarData.mlat.c_str(),
-                 Color::Green},
-                {"Updated",
-                 g_flightRadarData.updated.c_str(),
-                 Color::White}};
+                "Feed",
+                g_flightRadarData.feed.c_str(),
+                Color::Green
+            },
+            {
+                "Aircraft",
+                g_flightRadarData.aircraft.c_str(),
+                Color::Cyan
+            },
+            {
+                "MLAT",
+                g_flightRadarData.mlat.c_str(),
+                Color::Green
+            },
+            {
+                "Updated",
+                g_flightRadarData.updated.c_str(),
+                Color::White
+            }
+        };
 
         Display_FillScreen(Color::Black);
 
@@ -247,22 +273,26 @@ namespace
 
         if (feed != nullptr)
         {
-            g_flightRadarData.feed = feed;
+            g_flightRadarData.feed =
+                feed;
         }
 
         if (aircraft != nullptr)
         {
-            g_flightRadarData.aircraft = aircraft;
+            g_flightRadarData.aircraft =
+                aircraft;
         }
 
         if (mlat != nullptr)
         {
-            g_flightRadarData.mlat = mlat;
+            g_flightRadarData.mlat =
+                mlat;
         }
 
         if (updated != nullptr)
         {
-            g_flightRadarData.updated = updated;
+            g_flightRadarData.updated =
+                updated;
         }
 
         LOGF(
@@ -279,48 +309,33 @@ namespace
         }
     }
 
-    void handleMqttMessage(
-        const char *topic,
-        const char *payload)
-    {
-        if (topic == nullptr ||
-            payload == nullptr)
-        {
-            return;
-        }
-
-        if (strcmp(
-                topic,
-                FLIGHTRADAR_TOPIC) == 0)
-        {
-            handleFlightRadarMessage(payload);
-            return;
-        }
-
-        if (strcmp(
-                topic,
-                HOME_ASSISTANT_TOPIC) == 0)
-        {
-            handleHomeAssistantMessage(payload);
-        }
-    }
-
     void drawPiHolePage()
     {
         const Display_TableRow rows[] =
+        {
             {
-                {"Status",
-                 g_piHoleData.status.c_str(),
-                 Color::Green},
-                {"Queries",
-                 g_piHoleData.queries.c_str(),
-                 Color::Cyan},
-                {"Blocked",
-                 g_piHoleData.blocked.c_str(),
-                 Color::Yellow},
-                {"Clients",
-                 g_piHoleData.clients.c_str(),
-                 Color::White}};
+                "Status",
+                g_piHoleData.status.c_str(),
+                g_piHoleData.status == "Online"
+                    ? Color::Green
+                    : Color::Red
+            },
+            {
+                "Queries",
+                g_piHoleData.queries.c_str(),
+                Color::Cyan
+            },
+            {
+                "Blocked",
+                g_piHoleData.blocked.c_str(),
+                Color::Yellow
+            },
+            {
+                "Clients",
+                g_piHoleData.clients.c_str(),
+                Color::White
+            }
+        };
 
         Display_FillScreen(Color::Black);
 
@@ -353,6 +368,114 @@ namespace
         LOG("Displayed Pi-hole page.");
     }
 
+    void handlePiHoleMessage(
+        const char *payload)
+    {
+        if (payload == nullptr)
+        {
+            return;
+        }
+
+        JsonDocument document;
+
+        const DeserializationError error =
+            deserializeJson(
+                document,
+                payload);
+
+        if (error)
+        {
+            LOGWF(
+                "Pi-hole JSON parse failed: %s",
+                error.c_str());
+
+            return;
+        }
+
+        const char *status =
+            document["status"];
+
+        const char *queries =
+            document["queries"];
+
+        const char *blocked =
+            document["blocked"];
+
+        const char *clients =
+            document["clients"];
+
+        if (status != nullptr)
+        {
+            g_piHoleData.status =
+                status;
+        }
+
+        if (queries != nullptr)
+        {
+            g_piHoleData.queries =
+                queries;
+        }
+
+        if (blocked != nullptr)
+        {
+            g_piHoleData.blocked =
+                blocked;
+        }
+
+        if (clients != nullptr)
+        {
+            g_piHoleData.clients =
+                clients;
+        }
+
+        LOGF(
+            "Pi-hole updated | Status: %s | Queries: %s | Blocked: %s | Clients: %s",
+            g_piHoleData.status.c_str(),
+            g_piHoleData.queries.c_str(),
+            g_piHoleData.blocked.c_str(),
+            g_piHoleData.clients.c_str());
+
+        if (g_currentPage ==
+            DashboardPage::PiHole)
+        {
+            drawPiHolePage();
+        }
+    }
+
+    void handleMqttMessage(
+        const char *topic,
+        const char *payload)
+    {
+        if (topic == nullptr ||
+            payload == nullptr)
+        {
+            return;
+        }
+
+        if (strcmp(
+                topic,
+                FLIGHTRADAR_TOPIC) == 0)
+        {
+            handleFlightRadarMessage(payload);
+            return;
+        }
+
+        if (strcmp(
+                topic,
+                HOME_ASSISTANT_TOPIC) == 0)
+        {
+            handleHomeAssistantMessage(payload);
+            return;
+        }
+
+        if (strcmp(
+                topic,
+                PIHOLE_TOPIC) == 0)
+        {
+            handlePiHoleMessage(payload);
+        }
+    }
+
     void drawCurrentPage()
     {
         switch (g_currentPage)
@@ -380,13 +503,15 @@ namespace
             static_cast<uint8_t>(g_currentPage) + 1;
 
         if (nextPage >=
-            static_cast<uint8_t>(DashboardPage::Count))
+            static_cast<uint8_t>(
+                DashboardPage::Count))
         {
             nextPage = 0;
         }
 
         g_currentPage =
-            static_cast<DashboardPage>(nextPage);
+            static_cast<DashboardPage>(
+                nextPage);
 
         drawCurrentPage();
     }
@@ -437,9 +562,13 @@ void setup()
     MQTTService::subscribe(
         HOME_ASSISTANT_TOPIC);
 
+    MQTTService::subscribe(
+        PIHOLE_TOPIC);
+
     drawCurrentPage();
 
-    g_lastPageChangeTime = millis();
+    g_lastPageChangeTime =
+        millis();
 }
 
 void loop()
@@ -447,12 +576,15 @@ void loop()
     NetworkService::loop();
     MQTTService::loop();
 
-    const unsigned long currentTime = millis();
+    const unsigned long currentTime =
+        millis();
 
-    if (currentTime - g_lastPageChangeTime >=
+    if (currentTime -
+            g_lastPageChangeTime >=
         PAGE_DURATION_MS)
     {
-        g_lastPageChangeTime = currentTime;
+        g_lastPageChangeTime =
+            currentTime;
 
         advancePage();
     }

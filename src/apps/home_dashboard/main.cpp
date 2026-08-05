@@ -66,6 +66,14 @@ namespace
         Count
     };
 
+    // DashboardPage::Count = normal rotation
+    // DashboardPage::HomeAssistant = lock to Home Assistant
+    // DashboardPage::FlightRadar = lock to FlightRadar
+    // DashboardPage::PiHole = lock to Pi-hole
+
+    constexpr DashboardPage DEV_PAGE =
+        DashboardPage::PiHole;
+
     HomeAssistantData g_homeAssistantData;
     FlightRadarData g_flightRadarData;
     PiHoleData g_piHoleData;
@@ -565,6 +573,12 @@ void setup()
     MQTTService::subscribe(
         PIHOLE_TOPIC);
 
+    if (DEV_PAGE != DashboardPage::Count)
+    {
+        g_currentPage =
+            DEV_PAGE;
+    }
+
     drawCurrentPage();
 
     g_lastPageChangeTime =
@@ -579,14 +593,17 @@ void loop()
     const unsigned long currentTime =
         millis();
 
-    if (currentTime -
-            g_lastPageChangeTime >=
-        PAGE_DURATION_MS)
+    if (DEV_PAGE == DashboardPage::Count)
     {
-        g_lastPageChangeTime =
-            currentTime;
+        if (currentTime -
+                g_lastPageChangeTime >=
+            PAGE_DURATION_MS)
+        {
+            g_lastPageChangeTime =
+                currentTime;
 
-        advancePage();
+            advancePage();
+        }
     }
 
     delay(10);

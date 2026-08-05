@@ -23,9 +23,12 @@ namespace
     constexpr const char *FLIGHTRADAR_TOPIC =
         "home/dashboard/flightradar";
 
+    constexpr const char *HOME_ASSISTANT_TOPIC =
+        "home/dashboard/homeassistant";
+
     struct HomeAssistantData
     {
-        String garage = "Closed";
+        String sparePlug13 = "Unknown";
         String alarm = "Disarmed";
         String indoorTemperature = "72 F";
         String humidity = "41%";
@@ -68,9 +71,11 @@ namespace
     {
         const Display_TableRow rows[] =
             {
-                {"Garage",
-                 g_homeAssistantData.garage.c_str(),
-                 Color::Green},
+                {"Plug 13",
+                 g_homeAssistantData.sparePlug13.c_str(),
+                 g_homeAssistantData.sparePlug13 == "ON"
+                     ? Color::Green
+                     : Color::Red},
                 {"Alarm",
                  g_homeAssistantData.alarm.c_str(),
                  Color::Green},
@@ -110,6 +115,50 @@ namespace
             0);
 
         LOG("Displayed Home Assistant page.");
+    }
+
+    void handleHomeAssistantMessage(
+        const char *payload)
+    {
+        if (payload == nullptr)
+        {
+            return;
+        }
+
+        JsonDocument document;
+
+        const DeserializationError error =
+            deserializeJson(
+                document,
+                payload);
+
+        if (error)
+        {
+            LOGWF(
+                "Home Assistant JSON parse failed: %s",
+                error.c_str());
+
+            return;
+        }
+
+        const char *sparePlug13 =
+            document["sparePlug13"];
+
+        if (sparePlug13 != nullptr)
+        {
+            g_homeAssistantData.sparePlug13 =
+                sparePlug13;
+        }
+
+        LOGF(
+            "Home Assistant updated | Spare Plug 13: %s",
+            g_homeAssistantData.sparePlug13.c_str());
+
+        if (g_currentPage ==
+            DashboardPage::HomeAssistant)
+        {
+            drawHomeAssistantPage();
+        }
     }
 
     void drawFlightRadarPage()
@@ -245,6 +294,14 @@ namespace
                 FLIGHTRADAR_TOPIC) == 0)
         {
             handleFlightRadarMessage(payload);
+            return;
+        }
+
+        if (strcmp(
+                topic,
+                HOME_ASSISTANT_TOPIC) == 0)
+        {
+            handleHomeAssistantMessage(payload);
         }
     }
 
@@ -376,6 +433,9 @@ void setup()
 
     MQTTService::subscribe(
         FLIGHTRADAR_TOPIC);
+
+    MQTTService::subscribe(
+        HOME_ASSISTANT_TOPIC);
 
     drawCurrentPage();
 

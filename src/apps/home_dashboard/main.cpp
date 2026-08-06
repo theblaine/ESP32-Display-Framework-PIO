@@ -72,7 +72,7 @@ namespace
     // DashboardPage::PiHole = lock to Pi-hole
 
     constexpr DashboardPage DEV_PAGE =
-        DashboardPage::PiHole;
+        DashboardPage::Count; // Change this to lock to a specific page for development
 
     HomeAssistantData g_homeAssistantData;
     FlightRadarData g_flightRadarData;
@@ -83,33 +83,88 @@ namespace
 
     unsigned long g_lastPageChangeTime = 0;
 
+    unsigned long g_lastHomeAssistantUpdate = 0;
+    unsigned long g_lastFlightRadarUpdate = 0;
+    unsigned long g_lastPiHoleUpdate = 0;
+
+    void drawStatusFooter()
+    {
+        constexpr int16_t FOOTER_HEIGHT = 28;
+        constexpr uint16_t INACTIVE_COLOR = 0x7BEF;
+
+        const int16_t footerY =
+            Display::height() - FOOTER_HEIGHT;
+
+        Display_DrawPanel(
+            0,
+            footerY,
+            Display::width(),
+            FOOTER_HEIGHT,
+            Color::Black,
+            Color::White,
+            0);
+
+        Display_DrawStatusIndicator(
+            4,
+            footerY + 2,
+            52,
+            FOOTER_HEIGHT - 4,
+            "HA",
+            g_lastHomeAssistantUpdate != 0
+                ? Color::Green
+                : INACTIVE_COLOR,
+            Color::White,
+            Color::Black,
+            Display_StatusMarkerShape::Circle,
+            1);
+
+        Display_DrawStatusIndicator(
+            59,
+            footerY + 2,
+            52,
+            FOOTER_HEIGHT - 4,
+            "FR",
+            g_lastFlightRadarUpdate != 0
+                ? Color::Green
+                : INACTIVE_COLOR,
+            Color::White,
+            Color::Black,
+            Display_StatusMarkerShape::Circle,
+            1);
+
+        Display_DrawStatusIndicator(
+            114,
+            footerY + 2,
+            54,
+            FOOTER_HEIGHT - 4,
+            "PH",
+            g_lastPiHoleUpdate != 0
+                ? Color::Green
+                : INACTIVE_COLOR,
+            Color::White,
+            Color::Black,
+            Display_StatusMarkerShape::Circle,
+            1);
+    }
+
     void drawHomeAssistantPage()
     {
         const Display_TableRow rows[] =
-        {
             {
-                "Plug 13",
-                g_homeAssistantData.sparePlug13.c_str(),
-                g_homeAssistantData.sparePlug13 == "ON"
-                    ? Color::Green
-                    : Color::Red
-            },
-            {
-                "Alarm",
-                g_homeAssistantData.alarm.c_str(),
-                Color::Green
-            },
-            {
-                "Indoor",
-                g_homeAssistantData.indoorTemperature.c_str(),
-                Color::Cyan
-            },
-            {
-                "Humidity",
-                g_homeAssistantData.humidity.c_str(),
-                Color::Cyan
-            }
-        };
+                {"Plug 13",
+                 g_homeAssistantData.sparePlug13.c_str(),
+                 g_homeAssistantData.sparePlug13 == "ON"
+                     ? Color::Green
+                     : Color::Red},
+                {"Alarm",
+                 g_homeAssistantData.alarm.c_str(),
+                 Color::Green},
+                {"Indoor",
+                 g_homeAssistantData.indoorTemperature.c_str(),
+                 Color::Cyan},
+                {"Humidity",
+                 g_homeAssistantData.humidity.c_str(),
+                 Color::Cyan}};
 
         Display_FillScreen(Color::Black);
 
@@ -138,7 +193,7 @@ namespace
             0,
             64,
             0);
-
+        drawStatusFooter();
         LOG("Displayed Home Assistant page.");
     }
 
@@ -174,7 +229,7 @@ namespace
             g_homeAssistantData.sparePlug13 =
                 sparePlug13;
         }
-
+        g_lastHomeAssistantUpdate = millis();
         LOGF(
             "Home Assistant updated | Spare Plug 13: %s",
             g_homeAssistantData.sparePlug13.c_str());
@@ -189,28 +244,19 @@ namespace
     void drawFlightRadarPage()
     {
         const Display_TableRow rows[] =
-        {
             {
-                "Feed",
-                g_flightRadarData.feed.c_str(),
-                Color::Green
-            },
-            {
-                "Aircraft",
-                g_flightRadarData.aircraft.c_str(),
-                Color::Cyan
-            },
-            {
-                "MLAT",
-                g_flightRadarData.mlat.c_str(),
-                Color::Green
-            },
-            {
-                "Updated",
-                g_flightRadarData.updated.c_str(),
-                Color::White
-            }
-        };
+                {"Feed",
+                 g_flightRadarData.feed.c_str(),
+                 Color::Green},
+                {"Aircraft",
+                 g_flightRadarData.aircraft.c_str(),
+                 Color::Cyan},
+                {"MLAT",
+                 g_flightRadarData.mlat.c_str(),
+                 Color::Green},
+                {"Updated",
+                 g_flightRadarData.updated.c_str(),
+                 Color::White}};
 
         Display_FillScreen(Color::Black);
 
@@ -239,7 +285,7 @@ namespace
             0,
             32,
             64);
-
+        drawStatusFooter();
         LOG("Displayed FlightRadar24 page.");
     }
 
@@ -303,6 +349,8 @@ namespace
                 updated;
         }
 
+        g_lastFlightRadarUpdate = millis();
+
         LOGF(
             "FlightRadar updated | Feed: %s | Aircraft: %s | MLAT: %s | Updated: %s",
             g_flightRadarData.feed.c_str(),
@@ -320,30 +368,21 @@ namespace
     void drawPiHolePage()
     {
         const Display_TableRow rows[] =
-        {
             {
-                "Status",
-                g_piHoleData.status.c_str(),
-                g_piHoleData.status == "Online"
-                    ? Color::Green
-                    : Color::Red
-            },
-            {
-                "Queries",
-                g_piHoleData.queries.c_str(),
-                Color::Cyan
-            },
-            {
-                "Blocked",
-                g_piHoleData.blocked.c_str(),
-                Color::Yellow
-            },
-            {
-                "Clients",
-                g_piHoleData.clients.c_str(),
-                Color::White
-            }
-        };
+                {"Status",
+                 g_piHoleData.status.c_str(),
+                 g_piHoleData.status == "Online"
+                     ? Color::Green
+                     : Color::Red},
+                {"Queries",
+                 g_piHoleData.queries.c_str(),
+                 Color::Cyan},
+                {"Blocked",
+                 g_piHoleData.blocked.c_str(),
+                 Color::Yellow},
+                {"Clients",
+                 g_piHoleData.clients.c_str(),
+                 Color::White}};
 
         Display_FillScreen(Color::Black);
 
@@ -372,13 +411,14 @@ namespace
             64,
             0,
             64);
-
+        drawStatusFooter();
         LOG("Displayed Pi-hole page.");
     }
 
     void handlePiHoleMessage(
         const char *payload)
     {
+
         if (payload == nullptr)
         {
             return;
@@ -435,6 +475,8 @@ namespace
             g_piHoleData.clients =
                 clients;
         }
+
+        g_lastPiHoleUpdate = millis();
 
         LOGF(
             "Pi-hole updated | Status: %s | Queries: %s | Blocked: %s | Clients: %s",

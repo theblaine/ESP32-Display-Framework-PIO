@@ -58,26 +58,38 @@ namespace
         String clients = "27";
     };
 
+    struct TestData
+    {
+        String text1 = "Test One";
+        String text2 = "Test Two";
+        String text3 = "Test Three";
+        String text4 = "Test Four";
+        String text5 = "Test Five";
+        String text6 = "Test Six";
+    };
+
     enum class DashboardPage : uint8_t
     {
         HomeAssistant,
         FlightRadar,
         PiHole,
+        Test,
         Count
     };
 
     // DashboardPage::Count = normal rotation
     // DashboardPage::HomeAssistant = lock to Home Assistant
     // DashboardPage::FlightRadar = lock to FlightRadar
+    // DashboardPage::Test = lock to Test Page
     // DashboardPage::PiHole = lock to Pi-hole
 
     constexpr DashboardPage DEV_PAGE =
-        DashboardPage::Count; // Change this to lock to a specific page for development
+        DashboardPage::Test; // Change this to lock to a specific page for development
 
     HomeAssistantData g_homeAssistantData;
     FlightRadarData g_flightRadarData;
     PiHoleData g_piHoleData;
-
+    TestData g_testData;
     DashboardPage g_currentPage =
         DashboardPage::HomeAssistant;
 
@@ -86,6 +98,96 @@ namespace
     unsigned long g_lastHomeAssistantUpdate = 0;
     unsigned long g_lastFlightRadarUpdate = 0;
     unsigned long g_lastPiHoleUpdate = 0;
+
+    uint16_t plugColor(
+        const String &state)
+    {
+        if (state == "ON")
+        {
+            return Color::Green;
+        }
+
+        if (state == "OFF")
+        {
+            return Color::Red;
+        }
+
+        return Color::White;
+    }
+
+    uint16_t alarmColor(
+        const String &state)
+    {
+        if (state == "Disarmed")
+        {
+            return Color::Red;
+        }
+
+        if (state == "Armed Home")
+        {
+            return Color::Green;
+        }
+
+        if (state == "Armed Away")
+        {
+            return Color::Green;
+        }
+
+        if (state == "Triggered")
+        {
+            return Color::Yellow;
+        }
+
+        return Color::White;
+    }
+
+    uint16_t flightRadarFeedColor(
+        const String &state)
+    {
+        if (state == "Online")
+        {
+            return Color::Green;
+        }
+
+        if (state == "Offline")
+        {
+            return Color::Red;
+        }
+
+        return Color::White;
+    }
+
+    uint16_t mlatColor(
+        const String &state)
+    {
+        if (state == "Yes")
+        {
+            return Color::Green;
+        }
+
+        if (state == "No")
+        {
+            return Color::Red;
+        }
+
+        return Color::White;
+    }
+
+    uint16_t piHoleStatusColor(
+        const String &state)
+    {
+        if (state == "Online")
+        {
+            return Color::Green;
+        }
+
+        if (state == "Offline")
+        {
+            return Color::Red;
+        }
+
+        return Color::White;
+    }
 
     void drawStatusFooter()
     {
@@ -153,12 +255,12 @@ namespace
             {
                 {"Plug 13",
                  g_homeAssistantData.sparePlug13.c_str(),
-                 g_homeAssistantData.sparePlug13 == "ON"
-                     ? Color::Green
-                     : Color::Red},
+                 plugColor(
+                     g_homeAssistantData.sparePlug13)},
                 {"Alarm",
                  g_homeAssistantData.alarm.c_str(),
-                 Color::Green},
+                 alarmColor(
+                     g_homeAssistantData.alarm)},
                 {"Indoor",
                  g_homeAssistantData.indoorTemperature.c_str(),
                  Color::Cyan},
@@ -247,13 +349,15 @@ namespace
             {
                 {"Feed",
                  g_flightRadarData.feed.c_str(),
-                 Color::Green},
+                 flightRadarFeedColor(
+                     g_flightRadarData.feed)},
                 {"Aircraft",
                  g_flightRadarData.aircraft.c_str(),
                  Color::Cyan},
                 {"MLAT",
                  g_flightRadarData.mlat.c_str(),
-                 Color::Green},
+                 mlatColor(
+                     g_flightRadarData.mlat)},
                 {"Updated",
                  g_flightRadarData.updated.c_str(),
                  Color::White}};
@@ -371,9 +475,8 @@ namespace
             {
                 {"Status",
                  g_piHoleData.status.c_str(),
-                 g_piHoleData.status == "Online"
-                     ? Color::Green
-                     : Color::Red},
+                 piHoleStatusColor(
+                     g_piHoleData.status)},
                 {"Queries",
                  g_piHoleData.queries.c_str(),
                  Color::Cyan},
@@ -492,6 +595,61 @@ namespace
         }
     }
 
+    void drawTestPage()
+    {
+        const Display_TableRow rows[] =
+            {
+                {"Test 1",
+                 g_testData.text1.c_str(),
+                 Color::Red},
+                {"Test 2",
+                 g_testData.text2.c_str(),
+                 Color::Cyan},
+                {"Test 3",
+                 g_testData.text3.c_str(),
+                 Color::Yellow},
+                {"Test 4",
+                 g_testData.text4.c_str(),
+                 Color::White},
+                {"Test 5",
+                 g_testData.text5.c_str(),
+                 Color::Green},
+                {"Test 6",
+                 "Blaine",
+                 Color::Green}
+            };
+
+        Display_FillScreen(Color::Black);
+
+        Display_DrawHeaderBar(
+           "Test Page",
+            Color::Blue,
+            Color::White,
+            Color::White,
+            2,
+            34);
+
+        Display_DrawTable(
+            8,
+            48,
+            Display::width() - 16,
+            40,
+            rows,
+            sizeof(rows) / sizeof(rows[0]),
+            Color::Black,
+            Color::White,
+            Color::White,
+            Color::Cyan,
+            1);
+
+        RGBLamp::setColor(
+            64,
+            0,
+            64);
+        drawStatusFooter();
+        LOG("Displayed Test page.");
+    }
+
     void handleMqttMessage(
         const char *topic,
         const char *payload)
@@ -540,6 +698,10 @@ namespace
 
         case DashboardPage::PiHole:
             drawPiHolePage();
+            break;
+
+        case DashboardPage::Test:
+            drawTestPage();
             break;
 
         case DashboardPage::Count:

@@ -615,7 +615,7 @@ namespace
                  g_testData.text5.c_str(),
                  Color::Green},
                 {"Test 6",
-                 "Blaine",
+                 g_testData.text6.c_str(),
                  Color::Green}
             };
 

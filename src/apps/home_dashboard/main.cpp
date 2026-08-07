@@ -18,7 +18,8 @@
 
 namespace
 {
-    constexpr unsigned long PAGE_DURATION_MS = 10000;
+    constexpr unsigned long PAGE_DURATION_MS =
+        10000;
 
     constexpr const char *MQTT_BROKER =
         "10.0.0.50";
@@ -44,20 +45,57 @@ namespace
         FlightRadar,
         PiHole,
         Test,
-        Count
     };
 
-    // DashboardPage::Count = normal rotation
-    // DashboardPage::HomeAssistant = lock to Home Assistant
-    // DashboardPage::FlightRadar = lock to FlightRadar
-    // DashboardPage::PiHole = lock to Pi-hole
-    // DashboardPage::Test = lock to Test Page
+    enum class DashboardMode : uint8_t
+    {
+        Rotate,
+        Locked
+    };
 
-    constexpr DashboardPage DEV_PAGE =
-        DashboardPage::HomeAssistant; // Change this to lock to a specific page for development
+    /*
+     * Dashboard operating mode:
+     *
+     * DashboardMode::Rotate
+     *     Automatically cycles through ROTATION_PAGES.
+     *
+     * DashboardMode::Locked
+     *     Remains on LOCKED_PAGE.
+     */
+    constexpr DashboardMode DASHBOARD_MODE =
+        DashboardMode::Rotate;
+
+    /*
+     * Page used when DASHBOARD_MODE is Locked.
+     *
+     * This page does not need to be included in ROTATION_PAGES.
+     */
+    constexpr DashboardPage LOCKED_PAGE =
+        DashboardPage::Test;
+
+    /*
+     * Pages included in automatic rotation.
+     *
+     * Add, remove, comment out, or reorder entries here.
+     * Test remains available for locked development mode even
+     * though it is not included in normal rotation.
+     */
+    constexpr DashboardPage ROTATION_PAGES[] =
+        {
+            // DashboardPage::HomeAssistant,
+            // DashboardPage::FlightRadar,
+            DashboardPage::PiHole,
+            DashboardPage::Test,
+        };
+
+    constexpr size_t ROTATION_PAGE_COUNT =
+        sizeof(ROTATION_PAGES) /
+        sizeof(ROTATION_PAGES[0]);
 
     DashboardPage g_currentPage =
-        DashboardPage::Test;
+        ROTATION_PAGES[0];
+
+    size_t g_rotationIndex = 0;
 
     unsigned long g_lastPageChangeTime = 0;
 
@@ -206,27 +244,21 @@ namespace
             TestPage::draw();
             drawStatusFooter();
             break;
-
-        case DashboardPage::Count:
-            break;
         }
     }
 
     void advancePage()
     {
-        uint8_t nextPage =
-            static_cast<uint8_t>(g_currentPage) + 1;
+        g_rotationIndex++;
 
-        if (nextPage >=
-            static_cast<uint8_t>(
-                DashboardPage::Count))
+        if (g_rotationIndex >=
+            ROTATION_PAGE_COUNT)
         {
-            nextPage = 0;
+            g_rotationIndex = 0;
         }
 
         g_currentPage =
-            static_cast<DashboardPage>(
-                nextPage);
+            ROTATION_PAGES[g_rotationIndex];
 
         drawCurrentPage();
     }
@@ -280,10 +312,18 @@ void setup()
     MQTTService::subscribe(
         PIHOLE_TOPIC);
 
-    if (DEV_PAGE != DashboardPage::Count)
+    if (DASHBOARD_MODE ==
+        DashboardMode::Locked)
     {
         g_currentPage =
-            DEV_PAGE;
+            LOCKED_PAGE;
+    }
+    else
+    {
+        g_rotationIndex = 0;
+
+        g_currentPage =
+            ROTATION_PAGES[g_rotationIndex];
     }
 
     drawCurrentPage();
@@ -300,7 +340,8 @@ void loop()
     const unsigned long currentTime =
         millis();
 
-    if (DEV_PAGE == DashboardPage::Count)
+    if (DASHBOARD_MODE ==
+        DashboardMode::Rotate)
     {
         if (currentTime -
                 g_lastPageChangeTime >=

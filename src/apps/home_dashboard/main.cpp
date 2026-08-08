@@ -1,5 +1,7 @@
 #include <Arduino.h>
 
+#include "ProjectVersion.h"
+
 #include "Logger.h"
 #include "Display.h"
 #include "Display_GFX.h"
@@ -82,11 +84,11 @@ namespace
      */
     constexpr DashboardPage ROTATION_PAGES[] =
         {
-            // DashboardPage::HomeAssistant,
-            // DashboardPage::FlightRadar,
+            DashboardPage::HomeAssistant,
+            DashboardPage::FlightRadar,
             DashboardPage::PiHole,
             DashboardPage::Test,
-        };
+    };
 
     constexpr size_t ROTATION_PAGE_COUNT =
         sizeof(ROTATION_PAGES) /
@@ -271,6 +273,10 @@ void setup()
     Logger::begin();
 
     LOG("=====================================");
+    LOGF(
+        " %s v%s",
+        PROJECT_NAME,
+        PROJECT_VERSION);
     LOG(" Home Dashboard");
     LOG("=====================================");
 

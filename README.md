@@ -1,40 +1,82 @@
 # ESP32 Display Framework for PlatformIO
 
-Version 1.0 development baseline for a reusable, multi-board ESP32 display framework. The current baseline remains fully targeted to the **Waveshare ESP32-S3-LCD-1.47** while the architecture is refactored in small, testable steps.
+**Current version: v0.2.0**
 
-The repository contains working board drivers, layered display libraries, reusable UI widgets, button handling, runtime backlight control, and focused demo environments. It is intended to be a known-good starting point for new projects using this specific board.
+A reusable PlatformIO framework for ESP32 display projects, built around layered display libraries, board-specific configuration, focused hardware demos, and modular applications.
 
-## Hardware
+The framework currently supports the **Waveshare ESP32-S3-LCD-1.47** as the primary board and includes early **TTGO T-Display V1.1** support for selected display demos.
 
-- Waveshare ESP32-S3-LCD-1.47
-- ESP32-S3 with 16 MB flash and 8 MB PSRAM
+## Current Status
+
+Version **v0.2.0** establishes the first modular framework baseline:
+
+- Layered ST7789 display stack
+- Board-specific display configuration
+- Reusable graphics, text, and widget libraries
+- Runtime LCD brightness control
+- Wi-Fi and MQTT service wrappers
+- Reusable button and RGB LED helpers
+- Independent PlatformIO demo environments
+- Modular Home Dashboard application
+- Configurable dashboard page rotation and locked development mode
+- Initial multi-board support
+
+The project is still evolving. Public APIs and internal organization may change before a future 1.0 release.
+
+## Supported Boards
+
+### Waveshare ESP32-S3-LCD-1.47
+
+Primary development board.
+
+- ESP32-S3
+- 16 MB flash
+- 8 MB PSRAM
 - 172 × 320 ST7789 LCD
 - microSD card slot
 - Addressable RGB LED
 - BOOT button on GPIO 0
 
-Detailed hardware notes and pin assignments are in [`docs/Board.md`](docs/Board.md).
+See [`docs/Board.md`](docs/Board.md) for current Waveshare hardware notes.
+
+### TTGO T-Display V1.1
+
+Early framework support is available for selected display demos using the classic ESP32-based TTGO T-Display V1.1.
+
+Current TTGO PlatformIO environments:
+
+- `ttgo_display_graphics`
+- `ttgo_display_text`
+- `ttgo_display_console`
+- `ttgo_display_calibration`
 
 ## Software
 
 - PlatformIO
 - Arduino framework
 - `pioarduino/platform-espressif32`
+- PubSubClient
+- ArduinoJson where required
 
-The shared PlatformIO configuration is defined in [`platformio.ini`](platformio.ini):
+Shared build settings and all environments are defined in [`platformio.ini`](platformio.ini).
+
+The current default environment is:
 
 ```ini
-platform = https://github.com/pioarduino/platform-espressif32/releases/download/stable/platform-espressif32.zip
-board = esp32-s3-devkitc1-n16r8
-framework = arduino
+[platformio]
+default_envs = app_home_dashboard
 ```
 
-## Display Architecture
+## Framework Architecture
 
-The display code is organized in layers:
+The display stack is intentionally layered so board-specific hardware details remain below reusable drawing and UI code.
 
 ```text
+Display_Boards
+      ↓
 Display_ST7789
+      ↓
+Display
       ↓
 Display_GFX
       ↓
@@ -43,34 +85,71 @@ Display_Text
 Display_Widgets
 ```
 
-- **Display_ST7789** initializes and communicates with the LCD controller and manages backlight brightness.
-- **Display_GFX** provides drawing primitives.
-- **Display_Text** provides positioned text drawing and console-style printing.
-- **Display_Widgets** provides reusable dashboard and UI components.
+### Core Display Libraries
 
-## Reusable Libraries
-
-| Library | Purpose |
+| Library | Responsibility |
 |---|---|
-| `Buttons` | Debounced BOOT-button events, including short, long, and very-long presses |
-| `Display_ST7789` | LCD initialization, transfer functions, and backlight control |
-| `Display_GFX` | Graphics primitives used by the higher display layers |
-| `Display_text` | Text positioning, alignment, measurement, cursor, and print functions |
-| `Display_Widgets` | Panels, labels, values, progress bars, status indicators, bars, icons, batteries, and tables |
-| `Logger` | Lightweight INFO, WARN, and ERROR serial logging |
-| `LVGL_Driver` | LVGL display integration |
-| `PNGdec` | PNG decoding support |
-| `RGB_Lamp` | Onboard addressable RGB LED control |
+| `Display_Boards` | Compile-time board selection and board-specific display configuration |
+| `Display_ST7789` | Low-level ST7789 initialization, transfers, orientation, and backlight PWM |
+| `Display` | Public display facade used by application and framework code |
+| `Display_GFX` | Graphics primitives |
+| `Display_Text` | Positioned text, alignment, measurement, cursor, and print functions |
+| `Display_Widgets` | Higher-level reusable dashboard and UI components |
+
+### Supporting Libraries
+
+| Library | Responsibility |
+|---|---|
+| `Buttons` | Debounced button events including short, long, and very-long presses |
+| `Logger` | Lightweight serial logging |
+| `NetworkService` | Wi-Fi connection management used by current applications and demos |
+| `MQTTService` | MQTT connection, subscription, callback, and reconnect handling |
+| `RGB_Lamp` | Addressable RGB LED control |
 | `SD_Card` | microSD initialization and file helpers |
-| `Wireless` | Wi-Fi and Bluetooth-related helpers used by the original demos |
+| `LVGL_Driver` | LVGL integration retained for the factory/demo stack |
+| `Wireless` | Wireless helper code retained for original/demo functionality |
+| `PNGdec` | Third-party PNG decoder |
+| `lvgl` | Third-party LVGL source tree |
+
+## Home Dashboard Application
+
+The primary application is located at:
+
+```text
+src/apps/home_dashboard/
+```
+
+Its pages are modular and live under:
+
+```text
+src/apps/home_dashboard/pages/
+```
+
+Current pages:
+
+- Home Assistant
+- FlightRadar24
+- Pi-hole
+- Test
+
+`main.cpp` owns application-level behavior such as startup, MQTT topic routing, page rotation, and the shared status footer. Each page module owns its own data, MQTT payload parsing, page-specific colors, and drawing code.
+
+The dashboard supports two operating modes:
+
+- **Rotate** — cycles through the explicitly configured rotation-page list.
+- **Locked** — remains on one selected page for development and testing.
+
+This allows experimental or test pages to remain in the project without appearing in normal dashboard rotation.
+
+MQTT topics and payload formats are documented in [`docs/MQTT-Protocol.md`](docs/MQTT-Protocol.md).
 
 ## Display Widgets
 
 The widget library currently includes:
 
 - Panels and labels
-- Progress bars
 - Values and label/value cards
+- Progress bars
 - Status indicators
 - Header and footer bars
 - Built-in monochrome icons
@@ -78,86 +157,130 @@ The widget library currently includes:
 - Battery indicators
 - Label/value tables
 
-The complete interactive widget demonstration is documented in [`src/demos/display_widgets/README.md`](src/demos/display_widgets/README.md).
+The interactive widget demonstration is documented in [`src/demos/display_widgets/README.md`](src/demos/display_widgets/README.md).
 
-## Demo Environments
+## PlatformIO Environments
 
-Each demo is built as a separate PlatformIO environment.
+### Waveshare
 
-| Environment | Description |
+| Environment | Purpose |
 |---|---|
-| `demo_display_widgets` | Interactive demonstration of the reusable widget library |
-| `demo_display_console` | Console-style text output using cursor and print functions |
-| `demo_display_text` | Positioned, centered, and right-aligned text drawing |
-| `demo_display_graphics` | Low-level graphics primitives |
+| `app_home_dashboard` | Modular Home Dashboard application |
+| `demo_display_widgets` | Interactive widget demonstration |
+| `demo_display_console` | Console-style text output |
+| `demo_display_text` | Positioned and aligned text |
+| `demo_display_graphics` | Graphics primitives |
 | `demo_factory` | Original combined Waveshare hardware demonstration |
-| `demo_png` | PNG loading and rendering from microSD |
+| `demo_png` | PNG rendering from microSD |
 | `demo_wifi` | Wi-Fi initialization and scanning |
-| `demo_rgb` | Onboard RGB LED demonstration |
+| `demo_mqtt` | MQTT connectivity and JSON messaging |
+| `demo_sd` | microSD functionality |
+| `demo_rgb` | RGB LED control |
 
-The default environment is currently:
+### TTGO T-Display V1.1
 
-```ini
-default_envs = demo_display_text
+| Environment | Purpose |
+|---|---|
+| `ttgo_display_graphics` | Graphics demo |
+| `ttgo_display_text` | Text demo |
+| `ttgo_display_console` | Console text demo |
+| `ttgo_display_calibration` | Display calibration/testing |
+
+## Building and Uploading
+
+Build the default environment:
+
+```bash
+pio run
 ```
 
-Change that line in `platformio.ini`, select an environment from the PlatformIO toolbar, or build explicitly from a terminal:
+Build a specific environment:
 
 ```bash
 pio run -e demo_display_widgets
+```
+
+Build and upload:
+
+```bash
 pio run -e demo_display_widgets -t upload
+```
+
+Open the serial monitor:
+
+```bash
 pio device monitor -b 115200
 ```
 
+You can also select environments and run Build/Upload from the PlatformIO controls in VS Code.
+
 ## Wi-Fi Credentials
 
-The real credential file is intentionally excluded from Git:
+Local credentials belong in:
 
 ```text
 include/secrets.h
 ```
 
-To use a Wi-Fi demo, copy the example and enter local credentials:
+That file is intentionally excluded from Git.
+
+Start from:
 
 ```text
 include/secrets.example.h
-        ↓
-include/secrets.h
 ```
 
-Never commit `include/secrets.h`.
+and create your own local `include/secrets.h`.
 
-## Widget Demo Controls
-
-While running `demo_display_widgets`:
-
-- **Short BOOT press:** advance to the next page
-- **Long BOOT press:** return to the configured startup page
-- **Hold BOOT for three seconds:** cycle brightness through 100%, 75%, 50%, and 25%
-- **RESET:** restart and return to the startup page
+Never commit real credentials.
 
 ## Project Structure
 
 ```text
-docs/                       Board-specific documentation
-include/                    Project-wide headers and local secrets
-lib/                        Reusable and third-party libraries
-src/demos/                  One source folder per PlatformIO demo environment
-test/                       Reserved for PlatformIO tests
-platformio.ini              Environments and build configuration
+ESP32-Display-Framework-PIO/
+├── docs/                       Project and hardware documentation
+├── include/                    Project-wide headers and local configuration
+├── lib/                        Reusable framework and third-party libraries
+├── src/
+│   ├── apps/                   Complete applications
+│   │   └── home_dashboard/
+│   └── demos/                  Focused PlatformIO demos
+├── test/                       Reserved for PlatformIO tests
+├── BASELINE.md                 Historical refactor-baseline notes
+├── CHANGELOG.md                Project change history
+├── README.md                   Project overview
+└── platformio.ini              PlatformIO environments and build configuration
 ```
 
-## Project Status
+## Versioning
 
-**Version 1.0.0 — stable Waveshare-specific template**
+The project uses semantic-style version numbers:
 
-This repository is the completed reference project for the Waveshare ESP32-S3-LCD-1.47. Future multi-board development continues separately in the **ESP32-Display-Framework-PIO** project.
+```text
+MAJOR.MINOR.PATCH
+```
+
+During pre-1.0 development:
+
+- Patch releases are used for fixes, documentation, and behavior-preserving cleanup.
+- Minor releases are used for meaningful framework capabilities, new boards, widgets, or other larger additions.
+- A future `v1.0.0` will mark a stable public framework baseline.
+
+The current baseline is **v0.2.0**.
+
+## Documentation
+
+- [`docs/Board.md`](docs/Board.md) — Waveshare hardware notes
+- [`docs/MQTT-Protocol.md`](docs/MQTT-Protocol.md) — Home Dashboard MQTT topics and payloads
+- [`src/demos/display_widgets/README.md`](src/demos/display_widgets/README.md) — widget-demo controls and behavior
+- [`BASELINE.md`](BASELINE.md) — historical notes from the initial framework refactor
+- [`CHANGELOG.md`](CHANGELOG.md) — project history
 
 ## License Notes
 
 Third-party libraries retain their own licenses and documentation inside their respective folders. Review those licenses before redistributing a combined binary or source package.
 
-Project-specific source may be used and adapted according to the license selected for this repository.
+A project-level license should be selected before publishing the repository for broad reuse.
 
 ## Author
 

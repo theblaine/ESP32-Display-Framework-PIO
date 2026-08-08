@@ -17,6 +17,8 @@
 #include "pages/PiHolePage.h"
 #include "pages/FlightRadarPage.h"
 #include "pages/HomeAssistantPage.h"
+#include "pages/SystemStatusPage.h"
+#include "pages/SystemMonitorPage.h"
 
 namespace
 {
@@ -47,33 +49,9 @@ namespace
         FlightRadar,
         PiHole,
         Test,
+        SystemStatus,
+        SystemMonitor,
     };
-
-    enum class DashboardMode : uint8_t
-    {
-        Rotate,
-        Locked
-    };
-
-    /*
-     * Dashboard operating mode:
-     *
-     * DashboardMode::Rotate
-     *     Automatically cycles through ROTATION_PAGES.
-     *
-     * DashboardMode::Locked
-     *     Remains on LOCKED_PAGE.
-     */
-    constexpr DashboardMode DASHBOARD_MODE =
-        DashboardMode::Rotate;
-
-    /*
-     * Page used when DASHBOARD_MODE is Locked.
-     *
-     * This page does not need to be included in ROTATION_PAGES.
-     */
-    constexpr DashboardPage LOCKED_PAGE =
-        DashboardPage::Test;
 
     /*
      * Pages included in automatic rotation.
@@ -84,10 +62,12 @@ namespace
      */
     constexpr DashboardPage ROTATION_PAGES[] =
         {
-            DashboardPage::HomeAssistant,
-            DashboardPage::FlightRadar,
-            DashboardPage::PiHole,
-            DashboardPage::Test,
+            // DashboardPage::HomeAssistant,
+            // DashboardPage::FlightRadar,
+            // DashboardPage::PiHole,
+            // DashboardPage::Test,
+            // DashboardPage::SystemStatus,
+            DashboardPage::SystemMonitor,
     };
 
     constexpr size_t ROTATION_PAGE_COUNT =
@@ -246,6 +226,16 @@ namespace
             TestPage::draw();
             drawStatusFooter();
             break;
+
+        case DashboardPage::SystemStatus:
+            SystemStatusPage::draw();
+            drawStatusFooter();
+            break;
+            
+        case DashboardPage::SystemMonitor:
+            SystemMonitorPage::draw();
+            drawStatusFooter();
+            break;
         }
     }
 
@@ -317,20 +307,10 @@ void setup()
 
     MQTTService::subscribe(
         PIHOLE_TOPIC);
+    g_rotationIndex = 0;
 
-    if (DASHBOARD_MODE ==
-        DashboardMode::Locked)
-    {
-        g_currentPage =
-            LOCKED_PAGE;
-    }
-    else
-    {
-        g_rotationIndex = 0;
-
-        g_currentPage =
-            ROTATION_PAGES[g_rotationIndex];
-    }
+    g_currentPage =
+        ROTATION_PAGES[g_rotationIndex];
 
     drawCurrentPage();
 
@@ -346,18 +326,14 @@ void loop()
     const unsigned long currentTime =
         millis();
 
-    if (DASHBOARD_MODE ==
-        DashboardMode::Rotate)
+    if (currentTime -
+            g_lastPageChangeTime >=
+        PAGE_DURATION_MS)
     {
-        if (currentTime -
-                g_lastPageChangeTime >=
-            PAGE_DURATION_MS)
-        {
-            g_lastPageChangeTime =
-                currentTime;
+        g_lastPageChangeTime =
+            currentTime;
 
-            advancePage();
-        }
+        advancePage();
     }
 
     delay(10);

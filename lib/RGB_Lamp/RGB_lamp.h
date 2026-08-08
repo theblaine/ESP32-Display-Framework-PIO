@@ -23,7 +23,7 @@ void Set_Color(
 
 // Advances the legacy rainbow animation.
 void RGB_Lamp_Loop(
-    uint16_t waiting);                                // The lamp beads change color in cycles
+    uint16_t waiting);
 
 
 

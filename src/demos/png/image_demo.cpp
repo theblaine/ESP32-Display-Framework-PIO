@@ -55,7 +55,7 @@ void pngDraw(PNGDRAW *pDraw)
     {
         lineBuffer[i] = (((lineBuffer[i] >> 8) & 0xFF) | ((lineBuffer[i] << 8) & 0xFF00));
     }
-    LCD_addWindow(xpos, pDraw->y, xpos + pDraw->iWidth, ypos + pDraw->y, lineBuffer); // x_end End index on x-axis (x_end not included)
+    LCD_AddWindow(xpos, pDraw->y, xpos + pDraw->iWidth, ypos + pDraw->y, lineBuffer); // x_end End index on x-axis (x_end not included)
 }
 /////////////////////////////////////////////////////////////////
 

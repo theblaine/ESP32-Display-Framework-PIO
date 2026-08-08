@@ -1,5 +1,5 @@
 /*****************************************************************************
-  | File        :   LVGL_Driver.c
+  | File        :   LVGL_Driver.cpp
   
   | help        : 
     The provided LVGL library file must be installed first
@@ -27,13 +27,13 @@ void Lvgl_print(const char * buf)
 */
 void Lvgl_Display_LCD( lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p )
 {
-  LCD_AddWindow(area->x1, area->y1, area->x2, area->y2, ( uint16_t *)&color_p->full);
+  LCD_addWindow(area->x1, area->y1, area->x2, area->y2, ( uint16_t *)&color_p->full);
   lv_disp_flush_ready( disp_drv );
 }
 /*Read the touchpad*/
 void Lvgl_Touchpad_Read( lv_indev_drv_t * indev_drv, lv_indev_data_t * data )
 {
-  // NULL
+  // No touch controller is currently implemented.
 }
 void example_increase_lvgl_tick(void *arg)
 {
@@ -65,7 +65,7 @@ void Lvgl_Init(void)
 
   /* Create simple label */
   lv_obj_t *label = lv_label_create( lv_scr_act() );
-  lv_label_set_text( label, "Hello Ardino and LVGL!");
+  lv_label_set_text( label, "Hello Arduino and LVGL!");
   lv_obj_align( label, LV_ALIGN_CENTER, 0, 0 );
 
   const esp_timer_create_args_t lvgl_tick_timer_args = {

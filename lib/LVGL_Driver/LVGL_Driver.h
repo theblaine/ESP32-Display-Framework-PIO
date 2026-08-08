@@ -1,4 +1,14 @@
-#pragma once
+/*******************************************************
+ * LVGL_Driver
+ *
+ * Integration layer between LVGL and the display
+ * framework.
+ *
+ * Registers the display driver, manages LVGL timing,
+ * and forwards rendered frames to Display_ST7789.
+ *******************************************************/
+
+ #pragma once
 
 #include <lvgl.h>
 #include <lv_conf.h>

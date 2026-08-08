@@ -1,3 +1,17 @@
+/*
+ * SD_Card
+ *
+ * SD card support library.
+ *
+ * Contains both:
+ *
+ *   • Legacy helper functions used by the original
+ *     demonstration programs.
+ *
+ *   • Small framework helper functions used by
+ *     applications.
+ */
+
 #pragma once
 #include "Arduino.h"
 #include <cstring>
@@ -25,10 +39,6 @@ bool SD_FileExists(
 bool SD_ReadTextFile(
     const char* path,
     String& contents);
-
-bool SD_WriteTextFile(
-    const char* path,
-    const char* contents);
 
 bool File_Search(const char* directory, const char* fileName);
 uint16_t Folder_retrieval(const char* directory, const char* fileExtension, char File_Name[][100],uint16_t maxFiles);

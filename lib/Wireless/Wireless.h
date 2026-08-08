@@ -1,3 +1,14 @@
+/*
+ * Wireless
+ *
+ * Legacy hardware test helpers used by the original
+ * Waveshare demonstration programs.
+ *
+ * Provides simple Wi-Fi and BLE scanning routines.
+ *
+ * Not used by the Display Framework applications.
+ */
+
 #pragma once
 #include "WiFi.h"
 #include <BLEDevice.h>
@@ -8,7 +19,4 @@ extern uint8_t WIFI_NUM;
 extern uint8_t BLE_NUM;
 extern bool Scan_finish;
 
-// int wifi_scan_number();
-// int ble_scan_number();
-// void Wireless_Test1();
 void Wireless_Test2();

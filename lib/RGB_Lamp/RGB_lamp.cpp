@@ -1,8 +1,19 @@
+/*
+ * RGB_Lamp
+ *
+ * Controls the onboard addressable RGB LED.
+ *
+ * Framework code should use the RGBLamp namespace.
+ *
+ * RGB_Lamp_Loop() is retained for compatibility with the original
+ * demonstration applications that display a rainbow animation.
+ */
+
 #include "RGB_lamp.h"
 
-uint16_t Time = 0;
-uint16_t Number = 0;
-uint8_t RGB_Data[192][3] = {
+uint16_t g_animationTimer = 0;
+uint16_t g_animationIndex = 0;
+uint8_t g_rainbowColors[192][3] = {
   {64, 1, 0},  {63, 2, 0},  {62, 3, 0},  {61, 4, 0},  {60, 5, 0},  {59, 6, 0},  {58, 7, 0},  {57, 8, 0},
   {56, 9, 0},  {55, 10, 0}, {54, 11, 0}, {53, 12, 0}, {52, 13, 0}, {51, 14, 0}, {50, 15, 0}, {49, 16, 0},
   {48, 17, 0}, {47, 18, 0}, {46, 19, 0}, {45, 20, 0}, {44, 21, 0}, {43, 22, 0}, {42, 23, 0}, {41, 24, 0},
@@ -30,23 +41,49 @@ uint8_t RGB_Data[192][3] = {
   {49, 0, 16}, {50, 0, 15}, {51, 0, 14}, {52, 0, 13}, {53, 0, 12}, {54, 0, 11}, {55, 0, 10}, {56, 0, 9},
   {57, 0, 8},  {58, 0, 7},  {59, 0, 6},  {60, 0, 5},  {61, 0, 4},  {62, 0, 3},  {63, 0, 2},  {64, 0, 1}
 };
-// The onboard NeoPixel is physically wired as GRB.
-// Present a standard RGB interface to the rest of the project.
-// data range -> Red:0~255  Green:0~255  Blue:0~255
-void Set_Color(uint8_t Red,uint8_t Green,uint8_t Blue)                                            // Set RGB bead color
+/*
+ * The onboard NeoPixel expects GRB byte ordering.
+ *
+ * The framework presents a standard RGB interface and performs the
+ * RGB-to-GRB conversion internally.
+ *
+ * Color component range:
+ *   Red   : 0-255
+ *   Green : 0-255
+ *   Blue  : 0-255
+ */
+void Set_Color(
+    uint8_t red,
+    uint8_t green,
+    uint8_t blue)
 {
-  neopixelWrite(PIN_NEOPIXEL, Green, Red, Blue);  
+    neopixelWrite(
+        PIN_NEOPIXEL,
+        green,
+        red,
+        blue);
 }
-void RGB_Lamp_Loop(uint16_t Waiting)
-{ 
-  Time++;
-  if(Time == Waiting){
-    Time = 0;
-    Number++;
-    if(Number == 192)
-      Number = 0;
-    Set_Color( RGB_Data[Number][0]*3, RGB_Data[Number][1]*3, RGB_Data[Number][2]*3);  // Color
-  }
+void RGB_Lamp_Loop(
+    uint16_t waiting)
+{
+    g_animationTimer++;
+
+    if (g_animationTimer == waiting)
+    {
+        g_animationTimer = 0;
+
+        g_animationIndex++;
+
+        if (g_animationIndex == 192)
+        {
+            g_animationIndex = 0;
+        }
+
+        Set_Color(
+            g_rainbowColors[g_animationIndex][0] * 3,
+            g_rainbowColors[g_animationIndex][1] * 3,
+            g_rainbowColors[g_animationIndex][2] * 3);
+    }
 }
 
 namespace RGBLamp

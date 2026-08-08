@@ -8,7 +8,9 @@
 
 namespace
 {
+    // Minimum delay between MQTT connection attempts.
     constexpr unsigned long MQTT_RETRY_INTERVAL_MS = 5000;
+    // Maximum number of topics remembered for automatic resubscription.
     constexpr size_t MAX_SUBSCRIPTIONS = 8;
 
     WiFiClient g_wifiClient;
@@ -55,6 +57,9 @@ namespace
     }
 
     void subscribeToConfiguredTopics()
+    /*
+     * Re-subscribes every registered topic after a successful reconnect.
+     */
     {
         for (size_t index = 0;
              index < g_subscriptionCount;

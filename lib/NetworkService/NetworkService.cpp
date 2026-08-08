@@ -7,7 +7,9 @@
 
 namespace
 {
+    // Interval between Wi-Fi service checks.
     constexpr unsigned long WIFI_SERVICE_INTERVAL_MS = 2000;
+    // Maximum time spent attempting a connection.
     constexpr uint32_t WIFI_CONNECT_TIMEOUT_MS = 10000;
 
     WiFiMulti g_wifiMulti;
@@ -68,6 +70,8 @@ namespace NetworkService
     void begin()
     {
         WiFi.mode(WIFI_STA);
+        // Do not store credentials in flash.
+        // Applications provide networks at startup.
         WiFi.persistent(false);
         WiFi.setAutoReconnect(true);
 

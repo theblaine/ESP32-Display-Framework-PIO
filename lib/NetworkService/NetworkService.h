@@ -2,6 +2,17 @@
 
 #include <Arduino.h>
 
+/*
+ * NetworkService
+ *
+ * Provides Wi-Fi management for framework applications.
+ *
+ * Multiple candidate networks may be configured before begin().
+ *
+ * Call loop() regularly to maintain the connection.
+ */
+
+
 namespace NetworkService
 {
     void begin();

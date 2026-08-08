@@ -6,75 +6,126 @@
 
 namespace
 {
-void printFormatted(
-    const char* level,
-    const char* format,
-    va_list arguments
-)
-{
-    if (level != nullptr)
+    void printMessage(
+        const char *level,
+        const char *message)
     {
-        printf("[%s] ", level);
+        if (message == nullptr)
+        {
+            message = "";
+        }
+
+        printf(
+            "[%s] %s\r\n",
+            level,
+            message);
     }
 
-    vprintf(format, arguments);
-    printf("\r\n");
-}
+    void printFormatted(
+        const char *level,
+        const char *format,
+        va_list arguments)
+    {
+        if (format == nullptr)
+        {
+            return;
+        }
+
+        printf(
+            "[%s] ",
+            level);
+
+        vprintf(
+            format,
+            arguments);
+
+        printf("\r\n");
+    }
 }
 
 namespace Logger
 {
-void begin()
-{
-    // printf() is currently the verified output method for this board.
-    //
-    // This function is intentionally present even though no initialization
-    // is required yet. Future logger outputs such as LCD, MQTT, SD card, or
-    // network logging may need initialization here.
-}
+    void begin()
+    {
+        // printf() is currently the verified output method.
+        //
+        // This function intentionally remains even though no setup is
+        // required. Future outputs such as MQTT, SD card, display, or
+        // network logging may require initialization here.
+    }
 
-void info(const char* message)
-{
-    printf("[INFO] %s\r\n", message);
-}
+    void info(
+        const char *message)
+    {
+        printMessage(
+            "INFO",
+            message);
+    }
 
-void infof(const char* format, ...)
-{
-    va_list arguments;
-    va_start(arguments, format);
+    void infof(
+        const char *format,
+        ...)
+    {
+        va_list arguments;
+        va_start(
+            arguments,
+            format);
 
-    printFormatted("INFO", format, arguments);
+        printFormatted(
+            "INFO",
+            format,
+            arguments);
 
-    va_end(arguments);
-}
+        va_end(arguments);
+    }
 
-void warning(const char* message)
-{
-    printf("[WARN] %s\r\n", message);
-}
+    void warning(
+        const char *message)
+    {
+        printMessage(
+            "WARN",
+            message);
+    }
 
-void warningf(const char* format, ...)
-{
-    va_list arguments;
-    va_start(arguments, format);
+    void warningf(
+        const char *format,
+        ...)
+    {
+        va_list arguments;
+        va_start(
+            arguments,
+            format);
 
-    printFormatted("WARN", format, arguments);
+        printFormatted(
+            "WARN",
+            format,
+            arguments);
 
-    va_end(arguments);
-}
+        va_end(arguments);
+    }
 
-void error(const char* message)
-{
-    printf("[ERROR] %s\r\n", message);
-}
+    void error(
+        const char *message)
+    {
+        printMessage(
+            "ERROR",
+            message);
+    }
 
-void errorf(const char* format, ...)
-{
-    va_list arguments;
-    va_start(arguments, format);
+    void errorf(
+        const char *format,
+        ...)
+    {
+        va_list arguments;
+        va_start(
+            arguments,
+            format);
 
-    printFormatted("ERROR", format, arguments);
+        printFormatted(
+            "ERROR",
+            format,
+            arguments);
 
-    va_end(arguments);
-}
+        va_end(arguments);
+    }
 }

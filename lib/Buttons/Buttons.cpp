@@ -2,7 +2,15 @@
 
 namespace
 {
+    /*
+     * The BOOT button is currently GPIO 0 on the supported boards.
+     *
+     * If future boards use different button mappings, this should move
+     * into board-specific configuration rather than adding board checks
+     * inside this library.
+     */
     constexpr uint8_t BOOT_BUTTON_PIN = 0;
+
     constexpr uint32_t BUTTON_DEBOUNCE_MS = 25;
     constexpr uint32_t BUTTON_LONG_PRESS_MS = 750;
     constexpr uint32_t BUTTON_VERY_LONG_PRESS_MS = 3000;
@@ -11,27 +19,32 @@ namespace
     {
         bool rawPressed = false;
         bool stablePressed = false;
+
         bool pressedEvent = false;
         bool longPressedEvent = false;
         bool veryLongPressedEvent = false;
+
         bool veryLongPressReported = false;
+
         uint32_t rawChangedAt = 0;
         uint32_t pressedAt = 0;
     };
 
-    ButtonState BootButton;
+    ButtonState g_bootButton;
 
-    bool ReadBootButton()
+    bool readBootButton()
     {
-        return digitalRead(BOOT_BUTTON_PIN) == LOW;
+        return digitalRead(
+                   BOOT_BUTTON_PIN) == LOW;
     }
 
-    ButtonState* GetButtonState(Button button)
+    ButtonState *getButtonState(
+        Button button)
     {
         switch (button)
         {
-            case Button::Boot:
-                return &BootButton;
+        case Button::Boot:
+            return &g_bootButton;
         }
 
         return nullptr;
@@ -40,88 +53,156 @@ namespace
 
 void Buttons_Begin()
 {
-    pinMode(BOOT_BUTTON_PIN, INPUT_PULLUP);
+    pinMode(
+        BOOT_BUTTON_PIN,
+        INPUT_PULLUP);
 
-    const bool pressed = ReadBootButton();
-    const uint32_t now = millis();
+    const bool pressed =
+        readBootButton();
 
-    BootButton.rawPressed = pressed;
-    BootButton.stablePressed = pressed;
-    BootButton.rawChangedAt = now;
-    BootButton.pressedAt = pressed ? now : 0;
-    BootButton.veryLongPressReported = false;
-    BootButton.pressedEvent = false;
-    BootButton.longPressedEvent = false;
-    BootButton.veryLongPressedEvent = false;
+    const uint32_t now =
+        millis();
+
+    g_bootButton.rawPressed =
+        pressed;
+
+    g_bootButton.stablePressed =
+        pressed;
+
+    g_bootButton.rawChangedAt =
+        now;
+
+    g_bootButton.pressedAt =
+        pressed
+            ? now
+            : 0;
+
+    g_bootButton.veryLongPressReported =
+        false;
+
+    g_bootButton.pressedEvent =
+        false;
+
+    g_bootButton.longPressedEvent =
+        false;
+
+    g_bootButton.veryLongPressedEvent =
+        false;
 }
 
 void Buttons_Update()
 {
-    const uint32_t now = millis();
-    const bool rawPressed = ReadBootButton();
+    const uint32_t now =
+        millis();
 
-    // Events remain true for one update cycle.
-    BootButton.pressedEvent = false;
-    BootButton.longPressedEvent = false;
-    BootButton.veryLongPressedEvent = false;
+    const bool rawPressed =
+        readBootButton();
 
-    if (rawPressed != BootButton.rawPressed)
+    // Button events are valid for one update cycle only.
+    g_bootButton.pressedEvent =
+        false;
+
+    g_bootButton.longPressedEvent =
+        false;
+
+    g_bootButton.veryLongPressedEvent =
+        false;
+
+    // Track changes in the raw GPIO state.
+    if (rawPressed !=
+        g_bootButton.rawPressed)
     {
-        BootButton.rawPressed = rawPressed;
-        BootButton.rawChangedAt = now;
+        g_bootButton.rawPressed =
+            rawPressed;
+
+        g_bootButton.rawChangedAt =
+            now;
     }
 
-    if ((now - BootButton.rawChangedAt) >= BUTTON_DEBOUNCE_MS &&
-        BootButton.stablePressed != BootButton.rawPressed)
+    // Accept a raw state change only after the debounce interval.
+    if ((now -
+         g_bootButton.rawChangedAt) >=
+            BUTTON_DEBOUNCE_MS &&
+        g_bootButton.stablePressed !=
+            g_bootButton.rawPressed)
     {
-        BootButton.stablePressed = BootButton.rawPressed;
+        g_bootButton.stablePressed =
+            g_bootButton.rawPressed;
 
-        if (BootButton.stablePressed)
+        if (g_bootButton.stablePressed)
         {
-            BootButton.pressedAt = now;
-            BootButton.veryLongPressReported = false;
+            // Beginning of a new button press.
+            g_bootButton.pressedAt =
+                now;
+
+            g_bootButton.veryLongPressReported =
+                false;
         }
         else
         {
-            const uint32_t heldFor = now - BootButton.pressedAt;
+            // Button released. Classify the completed press.
+            const uint32_t heldFor =
+                now -
+                g_bootButton.pressedAt;
 
-            if (!BootButton.veryLongPressReported)
+            if (!g_bootButton.veryLongPressReported)
             {
-                if (heldFor >= BUTTON_LONG_PRESS_MS)
+                if (heldFor >=
+                    BUTTON_LONG_PRESS_MS)
                 {
-                    BootButton.longPressedEvent = true;
+                    g_bootButton.longPressedEvent =
+                        true;
                 }
                 else
                 {
-                    BootButton.pressedEvent = true;
+                    g_bootButton.pressedEvent =
+                        true;
                 }
             }
         }
     }
 
-    if (BootButton.stablePressed &&
-        !BootButton.veryLongPressReported &&
-        (now - BootButton.pressedAt) >= BUTTON_VERY_LONG_PRESS_MS)
+    // A very-long press fires immediately when the threshold is reached.
+    if (g_bootButton.stablePressed &&
+        !g_bootButton.veryLongPressReported &&
+        (now -
+         g_bootButton.pressedAt) >=
+            BUTTON_VERY_LONG_PRESS_MS)
     {
-        BootButton.veryLongPressReported = true;
-        BootButton.veryLongPressedEvent = true;
+        g_bootButton.veryLongPressReported =
+            true;
+
+        g_bootButton.veryLongPressedEvent =
+            true;
     }
 }
 
-bool Button_WasPressed(Button button)
+bool Button_WasPressed(
+    Button button)
 {
-    ButtonState* state = GetButtonState(button);
-    return state != nullptr && state->pressedEvent;
+    ButtonState *state =
+        getButtonState(button);
+
+    return state != nullptr &&
+           state->pressedEvent;
 }
 
-bool Button_WasLongPressed(Button button)
+bool Button_WasLongPressed(
+    Button button)
 {
-    ButtonState* state = GetButtonState(button);
-    return state != nullptr && state->longPressedEvent;
+    ButtonState *state =
+        getButtonState(button);
+
+    return state != nullptr &&
+           state->longPressedEvent;
 }
 
-bool Button_WasVeryLongPressed(Button button)
+bool Button_WasVeryLongPressed(
+    Button button)
 {
-    ButtonState* state = GetButtonState(button);
-    return state != nullptr && state->veryLongPressedEvent;
+    ButtonState *state =
+        getButtonState(button);
+
+    return state != nullptr &&
+           state->veryLongPressedEvent;
 }

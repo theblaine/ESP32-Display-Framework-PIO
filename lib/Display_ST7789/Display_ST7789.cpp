@@ -6,9 +6,11 @@
 
 namespace
 {
+    // Maximum PWM duty cycle for the configured resolution.
     constexpr uint32_t BacklightMaxDuty =
         (1UL << DisplayConfig::BacklightPwmResolution) - 1UL;
 
+    // Cached brightness percentage.
     uint8_t CurrentBrightness = 100;
 
 #if defined(CONFIG_IDF_TARGET_ESP32S3)
@@ -17,6 +19,7 @@ namespace
     SPIClass LCDspi(VSPI);
 #endif
 
+    // Initialize the SPI bus used by the LCD.
     void SPI_Init()
     {
         LCDspi.begin(
@@ -84,6 +87,7 @@ namespace
         LCDspi.endTransaction();
     }
 
+    // Performs the LCD hardware reset sequence.
     void LCD_Reset()
     {
         digitalWrite(DisplayConfig::PinChipSelect, LOW);
@@ -117,7 +121,12 @@ void LCD_Init(void)
     SPI_Init();
     LCD_Reset();
 
-    // Start initialization sequence.
+    /*
+     * ST7789 controller initialization sequence.
+     *
+     * These register values are based on the reference implementation
+     * and have been verified on the supported display boards.
+     */
     LCD_WriteCommand(0x11);
     delay(120);
 
@@ -254,7 +263,7 @@ void LCD_SetCursor(
     LCD_WriteCommand(0x2C);
 }
 
-void LCD_addWindow(
+void LCD_AddWindow(
     uint16_t xStart,
     uint16_t yStart,
     uint16_t xEnd,

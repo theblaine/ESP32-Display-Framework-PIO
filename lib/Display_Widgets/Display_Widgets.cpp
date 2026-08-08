@@ -5,13 +5,13 @@
 
 #include "DisplayConfig.h"
 
-
 namespace
 {
     constexpr uint8_t IconWidth = 8;
     constexpr uint8_t IconHeight = 8;
 
-    const uint8_t* GetIconBitmap(Display_Icon icon)
+    // Returns the bitmap for a built-in 8x8 icon.
+    const uint8_t *GetIconBitmap(Display_Icon icon)
     {
         // Each byte represents one 8-pixel row, most-significant bit first.
         static constexpr uint8_t HomeBitmap[IconHeight] = {
@@ -22,8 +22,7 @@ namespace
             0b01111110,
             0b01100110,
             0b01100110,
-            0b01100110
-        };
+            0b01100110};
 
         static constexpr uint8_t InfoBitmap[IconHeight] = {
             0b00111100,
@@ -33,8 +32,7 @@ namespace
             0b00011000,
             0b00011000,
             0b01111110,
-            0b00111100
-        };
+            0b00111100};
 
         static constexpr uint8_t CheckBitmap[IconHeight] = {
             0b00000000,
@@ -44,8 +42,7 @@ namespace
             0b01101100,
             0b00111000,
             0b00010000,
-            0b00000000
-        };
+            0b00000000};
 
         static constexpr uint8_t WarningBitmap[IconHeight] = {
             0b00011000,
@@ -55,8 +52,7 @@ namespace
             0b01100110,
             0b11111111,
             0b11011011,
-            0b11111111
-        };
+            0b11111111};
 
         static constexpr uint8_t PowerBitmap[IconHeight] = {
             0b00011000,
@@ -66,25 +62,24 @@ namespace
             0b11000011,
             0b01100110,
             0b00111100,
-            0b00011000
-        };
+            0b00011000};
 
         switch (icon)
         {
-            case Display_Icon::Home:
-                return HomeBitmap;
+        case Display_Icon::Home:
+            return HomeBitmap;
 
-            case Display_Icon::Info:
-                return InfoBitmap;
+        case Display_Icon::Info:
+            return InfoBitmap;
 
-            case Display_Icon::Check:
-                return CheckBitmap;
+        case Display_Icon::Check:
+            return CheckBitmap;
 
-            case Display_Icon::Warning:
-                return WarningBitmap;
+        case Display_Icon::Warning:
+            return WarningBitmap;
 
-            case Display_Icon::Power:
-                return PowerBitmap;
+        case Display_Icon::Power:
+            return PowerBitmap;
         }
 
         return InfoBitmap;
@@ -106,7 +101,7 @@ void Display_DrawIcon(
 
     Display_FillRect(x, y, size, size, backgroundColor);
 
-    const uint8_t* bitmap = GetIconBitmap(icon);
+    const uint8_t *bitmap = GetIconBitmap(icon);
     int16_t pixelSize = size / IconWidth;
 
     if (pixelSize < 1)
@@ -145,7 +140,7 @@ void Display_DrawIconLabel(
     int16_t width,
     int16_t height,
     Display_Icon icon,
-    const char* text,
+    const char *text,
     uint16_t iconColor,
     uint16_t textColor,
     uint16_t backgroundColor,
@@ -266,7 +261,7 @@ void Display_DrawLabel(
     int16_t y,
     int16_t width,
     int16_t height,
-    const char* text,
+    const char *text,
     uint16_t textColor,
     uint16_t backgroundColor,
     uint8_t textScale)
@@ -299,13 +294,12 @@ void Display_DrawLabel(
         textScale);
 }
 
-
 void Display_DrawValue(
     int16_t x,
     int16_t y,
     int16_t width,
     int16_t height,
-    const char* value,
+    const char *value,
     uint16_t textColor,
     uint16_t backgroundColor,
     uint8_t textScale)
@@ -320,7 +314,6 @@ void Display_DrawValue(
         backgroundColor,
         textScale);
 }
-
 
 void Display_DrawProgressBar(
     int16_t x,
@@ -390,16 +383,13 @@ void Display_DrawProgressBar(
         fillColor);
 }
 
-
-
-
 void Display_DrawLabelValue(
     int16_t x,
     int16_t y,
     int16_t width,
     int16_t height,
-    const char* label,
-    const char* value,
+    const char *label,
+    const char *value,
     uint16_t backgroundColor,
     uint16_t borderColor,
     uint16_t labelColor,
@@ -446,15 +436,12 @@ void Display_DrawLabelValue(
         valueScale);
 }
 
-
-
-
 void Display_DrawStatusIndicator(
     int16_t x,
     int16_t y,
     int16_t width,
     int16_t height,
-    const char* text,
+    const char *text,
     uint16_t statusColor,
     uint16_t textColor,
     uint16_t backgroundColor,
@@ -499,17 +486,17 @@ void Display_DrawStatusIndicator(
 
     switch (markerShape)
     {
-        case Display_StatusMarkerShape::Circle:
-            markerRadius = markerSize / 2;
-            break;
+    case Display_StatusMarkerShape::Circle:
+        markerRadius = markerSize / 2;
+        break;
 
-        case Display_StatusMarkerShape::Square:
-            markerRadius = 0;
-            break;
+    case Display_StatusMarkerShape::Square:
+        markerRadius = 0;
+        break;
 
-        case Display_StatusMarkerShape::RoundedSquare:
-            markerRadius = markerSize / 4;
-            break;
+    case Display_StatusMarkerShape::RoundedSquare:
+        markerRadius = markerSize / 4;
+        break;
     }
 
     if (markerRadius <= 0)
@@ -580,7 +567,7 @@ void Display_DrawStatus(
     int16_t y,
     int16_t width,
     int16_t height,
-    const char* text,
+    const char *text,
     uint16_t statusColor,
     uint16_t textColor,
     uint16_t backgroundColor,
@@ -601,7 +588,7 @@ void Display_DrawStatus(
         0xFFFF);
 }
 
-void Display_DrawHeaderBar(const char* title)
+void Display_DrawHeaderBar(const char *title)
 {
     Display_DrawHeaderBar(
         title,
@@ -613,7 +600,7 @@ void Display_DrawHeaderBar(const char* title)
 }
 
 void Display_DrawHeaderBar(
-    const char* title,
+    const char *title,
     uint16_t backgroundColor,
     uint16_t borderColor,
     uint16_t textColor,
@@ -648,7 +635,7 @@ void Display_DrawHeaderBar(
         textScale);
 }
 
-void Display_DrawFooterBar(const char* text)
+void Display_DrawFooterBar(const char *text)
 {
     Display_DrawFooterBar(
         text,
@@ -660,7 +647,7 @@ void Display_DrawFooterBar(const char* text)
 }
 
 void Display_DrawFooterBar(
-    const char* text,
+    const char *text,
     uint16_t backgroundColor,
     uint16_t borderColor,
     uint16_t textColor,
@@ -695,7 +682,6 @@ void Display_DrawFooterBar(
         backgroundColor,
         textScale);
 }
-
 
 void Display_DrawBattery(
     int16_t x,
@@ -829,8 +815,8 @@ void Display_DrawTableRow(
     int16_t y,
     int16_t width,
     int16_t height,
-    const char* label,
-    const char* value,
+    const char *label,
+    const char *value,
     uint16_t backgroundColor,
     uint16_t borderColor,
     uint16_t labelColor,
@@ -899,7 +885,7 @@ void Display_DrawTable(
     int16_t y,
     int16_t width,
     int16_t rowHeight,
-    const Display_TableRow* rows,
+    const Display_TableRow *rows,
     size_t rowCount,
     uint16_t backgroundColor,
     uint16_t borderColor,
@@ -967,13 +953,11 @@ void Display_DrawTable(
     Display_DrawRect(x, y, width, tableHeight, borderColor);
 }
 
-
-
 void Display_ShowStatusScreen(
-    const char* title,
-    const char* statusText,
+    const char *title,
+    const char *statusText,
     uint16_t statusColor,
-    const char* detailText)
+    const char *detailText)
 {
     if (title == nullptr || statusText == nullptr)
     {
@@ -1002,22 +986,21 @@ void Display_ShowStatusScreen(
         Display_StatusMarkerShape::Circle,
         2);
 
-if (detailText != nullptr)
-{
-    Display_DrawTextWrapped(
-        10,
-        120,
-        DisplayConfig::Width - 20,
-        detailText,
-        Color::Cyan,
-        Color::Black,
-        2);
+    if (detailText != nullptr)
+    {
+        Display_DrawTextWrapped(
+            10,
+            120,
+            DisplayConfig::Width - 20,
+            detailText,
+            Color::Cyan,
+            Color::Black,
+            2);
+    }
 }
-}
-
 
 void Display_ShowStatusScreen(
-    const Display_StatusScreenData& screen)
+    const Display_StatusScreenData &screen)
 {
     Display_ShowStatusScreen(
         screen.title.c_str(),

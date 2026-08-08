@@ -3,7 +3,7 @@
 #include <Arduino.h>
 
 /**
- * Initializes the LCD controller and backlight.
+ * Initializes the ST7789 controller and LCD backlight.
  */
 void LCD_Init(void);
 
@@ -19,7 +19,7 @@ void LCD_SetCursor(
 /**
  * Writes pixel data to a rectangular LCD window.
  */
-void LCD_addWindow(
+void LCD_AddWindow(
     uint16_t xStart,
     uint16_t yStart,
     uint16_t xEnd,

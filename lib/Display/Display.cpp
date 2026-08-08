@@ -12,6 +12,7 @@ namespace Display
 {
     void begin()
     {
+        // Initialize the configured display hardware.
         LCD_Init();
     }
 

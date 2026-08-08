@@ -1,3 +1,12 @@
+/*
+ * Display_Text
+ *
+ * Lightweight bitmap text rendering built upon Display_GFX.
+ *
+ * Provides primitive text drawing, alignment helpers,
+ * cursor-based printing, and word wrapping.
+ */
+
 #pragma once
 
 #include <Arduino.h>
@@ -38,15 +47,6 @@ void Display_DrawTextWrapped(
     int16_t x,
     int16_t y,
     int16_t maxWidth,
-    const char* text,
-    uint16_t textColor,
-    uint16_t backgroundColor,
-    uint8_t scale);
-
-void Display_DrawTextWrapped(
-    int16_t x,
-    int16_t y,
-    int16_t maxWidth,
     const char *text,
     uint16_t textColor,
     uint16_t backgroundColor,
@@ -57,15 +57,6 @@ int16_t Display_GetTextWidth(
     uint8_t scale = 1);
 
 int16_t Display_GetLineHeight(
-    uint8_t scale);
-
-void Display_DrawTextWrapped(
-    int16_t x,
-    int16_t y,
-    int16_t maxWidth,
-    const char *text,
-    uint16_t textColor,
-    uint16_t backgroundColor,
     uint8_t scale);
 
 void Display_SetCursor(

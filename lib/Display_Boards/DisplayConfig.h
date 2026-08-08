@@ -17,6 +17,6 @@ namespace DisplayConfig = TTGODisplayConfig;
 
 #else
 
-#error "No display board selected. Define DISPLAY_BOARD_WAVESHARE_147 or DISPLAY_BOARD_TTGO_T_DISPLAY."
+#error "No display board selected. Define a DISPLAY_BOARD_* build flag."
 
 #endif

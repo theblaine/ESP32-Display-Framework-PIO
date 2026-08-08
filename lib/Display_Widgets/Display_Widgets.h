@@ -1,3 +1,15 @@
+/*
+ * Display_Widgets
+ *
+ * Reusable user interface widgets built upon Display_GFX
+ * and Display_Text.
+ *
+ * Widgets intentionally avoid application-specific behavior
+ * so they may be reused by dashboards, demos, and future
+ * projects.
+ */
+
+
 #pragma once
 
 #include <Arduino.h>

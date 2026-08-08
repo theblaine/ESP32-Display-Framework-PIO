@@ -19,6 +19,7 @@ namespace
 
     uint8_t CurrentTextScale = 1;
 
+    // Returns the 5x7 bitmap for a printable character.
     bool GetCharacterBitmap(
         char character,
         uint8_t bitmap[FontWidth])
@@ -524,7 +525,6 @@ void Display_DrawTextRight(
         scale);
 }
 
-
 void Display_DrawTextWrapped(
     int16_t x,
     int16_t y,
@@ -693,6 +693,6 @@ void Display_Println()
 {
     CursorX = LineStartX;
 
-CursorY +=
-    Display_GetLineHeight(CurrentTextScale);
+    CursorY +=
+        Display_GetLineHeight(CurrentTextScale);
 }

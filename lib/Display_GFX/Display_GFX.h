@@ -1,3 +1,12 @@
+/*
+ * Display_GFX
+ *
+ * Primitive drawing routines used throughout the framework.
+ *
+ * These functions build upon Display_ST7789 and provide reusable
+ * graphics operations such as lines, rectangles, circles, and fills.
+ */
+
 #pragma once
 
 #include <Arduino.h>

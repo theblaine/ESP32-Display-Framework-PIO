@@ -3,7 +3,7 @@
 #include "Display_ST7789.h"
 #include "DisplayConfig.h"
 
-#include <math.h>
+#include <cmath>
 
 void Display_FillScreen(uint16_t color)
 {
@@ -18,7 +18,7 @@ void Display_FillScreen(uint16_t color)
     // Send that row to every row of the display.
     for (uint16_t y = 0; y < DisplayConfig::Height; y++)
     {
-        LCD_addWindow(
+        LCD_AddWindow(
             0,
             y,
             DisplayConfig::Width - 1,
@@ -43,7 +43,7 @@ void Display_FillRect(int16_t x, int16_t y, int16_t width, int16_t height, uint1
 
     for (int16_t row = 0; row < height; row++)
     {
-        LCD_addWindow(
+        LCD_AddWindow(
             x,
             y + row,
             x + width - 1,
@@ -56,7 +56,7 @@ void Display_DrawPixel(int16_t x, int16_t y, uint16_t color)
 {
     uint16_t pixel = color;
 
-    LCD_addWindow(
+    LCD_AddWindow(
         x,
         y,
         x,
@@ -78,7 +78,7 @@ void Display_DrawFastHLine(int16_t x, int16_t y, int16_t width, uint16_t color)
         rowBuffer[i] = color;
     }
 
-    LCD_addWindow(
+    LCD_AddWindow(
         x,
         y,
         x + width - 1,
@@ -100,7 +100,7 @@ void Display_DrawFastVLine(int16_t x, int16_t y, int16_t height, uint16_t color)
         columnBuffer[i] = color;
     }
 
-    LCD_addWindow(
+    LCD_AddWindow(
         x,
         y,
         x,
@@ -191,15 +191,15 @@ void Display_DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t c
             break;
         }
 
-        int16_t error2 = error * 2;
+        int16_t twiceError = error * 2;
 
-        if (error2 >= deltaY)
+        if (twiceError >= deltaY)
         {
             error += deltaY;
             x0 += stepX;
         }
 
-        if (error2 <= deltaX)
+        if (twiceError <= deltaX)
         {
             error += deltaX;
             y0 += stepY;

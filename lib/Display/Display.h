@@ -1,6 +1,11 @@
 /**
- * @file Display.h
- * @brief Public application-facing interface for the display framework.
+ * @brief Public display interface.
+ *
+ * Applications should use this namespace rather than
+ * calling display driver functions directly.
+ *
+ * This layer provides a board-independent API for
+ * display initialization, dimensions, and brightness.
  */
 
 #pragma once

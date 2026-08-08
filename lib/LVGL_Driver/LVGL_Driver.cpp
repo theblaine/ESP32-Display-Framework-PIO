@@ -27,7 +27,7 @@ void Lvgl_print(const char * buf)
 */
 void Lvgl_Display_LCD( lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *color_p )
 {
-  LCD_addWindow(area->x1, area->y1, area->x2, area->y2, ( uint16_t *)&color_p->full);
+  LCD_AddWindow(area->x1, area->y1, area->x2, area->y2, ( uint16_t *)&color_p->full);
   lv_disp_flush_ready( disp_drv );
 }
 /*Read the touchpad*/

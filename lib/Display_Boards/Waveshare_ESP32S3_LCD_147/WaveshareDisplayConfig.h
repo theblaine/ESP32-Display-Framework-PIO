@@ -33,7 +33,9 @@ namespace WaveshareDisplayConfig
 
     // Panel addressing and orientation.
     inline constexpr bool Horizontal = true;
+    // ST7789 MADCTL register value controlling panel orientation.
     inline constexpr uint8_t MemoryAccessControl = 0xC0;
+    // Display RAM offsets required by this LCD panel.
     inline constexpr uint16_t OffsetX = 34;
     inline constexpr uint16_t OffsetY = 0;
 }

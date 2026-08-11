@@ -75,8 +75,8 @@ namespace
             // DashboardPage::Test,
             // DashboardPage::SystemStatus,
             // DashboardPage::SystemMonitor,
-            // DashboardPage::Network,
-            DashboardPage::DeathStar,
+            DashboardPage::Network,
+            // DashboardPage::DeathStar,
     };
 
     constexpr size_t ROTATION_PAGE_COUNT =

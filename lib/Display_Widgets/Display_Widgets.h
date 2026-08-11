@@ -9,7 +9,6 @@
  * projects.
  */
 
-
 #pragma once
 
 #include <Arduino.h>
@@ -23,7 +22,6 @@ enum class Display_StatusMarkerShape : uint8_t
     Square,
     RoundedSquare
 };
-
 
 /**
  * Built-in monochrome icons supported by Display_DrawIcon().
@@ -63,7 +61,7 @@ void Display_DrawIconLabel(
     int16_t width,
     int16_t height,
     Display_Icon icon,
-    const char* text,
+    const char *text,
     uint16_t iconColor,
     uint16_t textColor,
     uint16_t backgroundColor,
@@ -95,11 +93,10 @@ void Display_DrawLabel(
     int16_t y,
     int16_t width,
     int16_t height,
-    const char* text,
+    const char *text,
     uint16_t textColor,
     uint16_t backgroundColor,
     uint8_t textScale = 1);
-
 
 /**
  * Draws a value centered horizontally and vertically inside a rectangular area.
@@ -112,7 +109,7 @@ void Display_DrawValue(
     int16_t y,
     int16_t width,
     int16_t height,
-    const char* value,
+    const char *value,
     uint16_t textColor,
     uint16_t backgroundColor,
     uint8_t textScale = 3);
@@ -128,8 +125,8 @@ void Display_DrawLabelValue(
     int16_t y,
     int16_t width,
     int16_t height,
-    const char* label,
-    const char* value,
+    const char *label,
+    const char *value,
     uint16_t backgroundColor,
     uint16_t borderColor,
     uint16_t labelColor,
@@ -150,7 +147,7 @@ void Display_DrawStatusIndicator(
     int16_t y,
     int16_t width,
     int16_t height,
-    const char* text,
+    const char *text,
     uint16_t statusColor,
     uint16_t textColor,
     uint16_t backgroundColor,
@@ -170,19 +167,18 @@ void Display_DrawStatus(
     int16_t y,
     int16_t width,
     int16_t height,
-    const char* text,
+    const char *text,
     uint16_t statusColor,
     uint16_t textColor,
     uint16_t backgroundColor,
     uint8_t textScale = 1);
-
 
 /**
  * Draws a full-width header bar at the top of the display.
  *
  * This convenience overload uses the default dashboard colors and sizing.
  */
-void Display_DrawHeaderBar(const char* title);
+void Display_DrawHeaderBar(const char *title);
 
 /**
  * Draws a customizable full-width header bar at the top of the display.
@@ -190,7 +186,7 @@ void Display_DrawHeaderBar(const char* title);
  * The title is left aligned. A separator line is drawn along the bottom edge.
  */
 void Display_DrawHeaderBar(
-    const char* title,
+    const char *title,
     uint16_t backgroundColor,
     uint16_t borderColor,
     uint16_t textColor,
@@ -202,7 +198,7 @@ void Display_DrawHeaderBar(
  *
  * This convenience overload uses the default dashboard colors and sizing.
  */
-void Display_DrawFooterBar(const char* text);
+void Display_DrawFooterBar(const char *text);
 
 /**
  * Draws a customizable full-width footer bar at the bottom of the display.
@@ -210,13 +206,12 @@ void Display_DrawFooterBar(const char* text);
  * The text is centered. A separator line is drawn along the top edge.
  */
 void Display_DrawFooterBar(
-    const char* text,
+    const char *text,
     uint16_t backgroundColor,
     uint16_t borderColor,
     uint16_t textColor,
     uint8_t textScale = 1,
     int16_t height = 28);
-
 
 /**
  * Draws a horizontal battery level indicator.
@@ -255,6 +250,24 @@ void Display_DrawProgressBar(
     uint16_t fillColor,
     uint16_t borderColor,
     int16_t radius = 0);
+
+/**
+ * Draws a vertical-bar signal strength meter.
+ *
+ * level controls how many bars are filled and is limited to barCount.
+ * Bars increase in height from left to right.
+ */
+void Display_DrawSignalMeter(
+    int16_t x,
+    int16_t y,
+    int16_t width,
+    int16_t height,
+    uint8_t level,
+    uint8_t barCount,
+    uint16_t activeColor,
+    uint16_t inactiveColor,
+    uint16_t backgroundColor);
+
 /**
  * One label/value row used by Display_DrawTable().
  *
@@ -262,12 +275,10 @@ void Display_DrawProgressBar(
  */
 struct Display_TableRow
 {
-    const char* label;
-    const char* value;
+    const char *label;
+    const char *value;
     uint16_t valueColor = 0;
 };
-
-
 
 struct Display_StatusScreenData
 {
@@ -276,7 +287,6 @@ struct Display_StatusScreenData
     String detail;
     uint16_t statusColor;
 };
-
 
 /**
  * Draws one two-column label/value table row.
@@ -290,8 +300,8 @@ void Display_DrawTableRow(
     int16_t y,
     int16_t width,
     int16_t height,
-    const char* label,
-    const char* value,
+    const char *label,
+    const char *value,
     uint16_t backgroundColor,
     uint16_t borderColor,
     uint16_t labelColor,
@@ -312,7 +322,7 @@ void Display_DrawTable(
     int16_t y,
     int16_t width,
     int16_t rowHeight,
-    const Display_TableRow* rows,
+    const Display_TableRow *rows,
     size_t rowCount,
     uint16_t backgroundColor,
     uint16_t borderColor,
@@ -321,9 +331,6 @@ void Display_DrawTable(
     uint8_t textScale = 1,
     int16_t labelColumnWidth = 0,
     bool drawColumnDivider = true);
-
-
-
 
 /**
  * Draws a simple full-screen service status page.
@@ -334,13 +341,13 @@ void Display_DrawTable(
  * or other supporting information.
  */
 void Display_ShowStatusScreen(
-    const char* title,
-    const char* statusText,
+    const char *title,
+    const char *statusText,
     uint16_t statusColor,
-    const char* detailText = nullptr);
+    const char *detailText = nullptr);
 
 /**
  * Convenience overload that accepts a status screen structure.
  */
 void Display_ShowStatusScreen(
-    const Display_StatusScreenData& screen);
+    const Display_StatusScreenData &screen);

@@ -383,6 +383,77 @@ void Display_DrawProgressBar(
         fillColor);
 }
 
+void Display_DrawSignalMeter(
+    int16_t x,
+    int16_t y,
+    int16_t width,
+    int16_t height,
+    uint8_t level,
+    uint8_t barCount,
+    uint16_t activeColor,
+    uint16_t inactiveColor,
+    uint16_t backgroundColor)
+{
+    if (width <= 0 ||
+        height <= 0 ||
+        barCount == 0)
+    {
+        return;
+    }
+
+    if (level > barCount)
+    {
+        level = barCount;
+    }
+
+    Display_FillRect(
+        x,
+        y,
+        width,
+        height,
+        backgroundColor);
+
+    constexpr int16_t Gap = 2;
+
+    const int16_t totalGapWidth =
+        Gap * (barCount - 1);
+
+    const int16_t barWidth =
+        (width - totalGapWidth) / barCount;
+
+    if (barWidth <= 0)
+    {
+        return;
+    }
+
+    for (uint8_t index = 0;
+         index < barCount;
+         index++)
+    {
+        const int16_t barHeight =
+            ((index + 1) * height) /
+            barCount;
+
+        const int16_t barX =
+            x + (index * (barWidth + Gap));
+
+        const int16_t barY =
+            y + height - barHeight;
+
+        const uint16_t barColor =
+            index < level
+                ? activeColor
+                : inactiveColor;
+
+        Display_FillRect(
+            barX,
+            barY,
+            barWidth,
+            barHeight,
+            barColor);
+    }
+}
+
 void Display_DrawLabelValue(
     int16_t x,
     int16_t y,

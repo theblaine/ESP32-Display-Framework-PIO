@@ -19,6 +19,7 @@
 #include "pages/HomeAssistantPage.h"
 #include "pages/SystemStatusPage.h"
 #include "pages/SystemMonitorPage.h"
+#include "pages/NetworkPage.h"
 
 namespace
 {
@@ -51,6 +52,7 @@ namespace
         Test,
         SystemStatus,
         SystemMonitor,
+        Network,
     };
 
     /*
@@ -67,7 +69,8 @@ namespace
             // DashboardPage::PiHole,
             // DashboardPage::Test,
             // DashboardPage::SystemStatus,
-            DashboardPage::SystemMonitor,
+            // DashboardPage::SystemMonitor,
+            DashboardPage::Network,
     };
 
     constexpr size_t ROTATION_PAGE_COUNT =
@@ -231,9 +234,14 @@ namespace
             SystemStatusPage::draw();
             drawStatusFooter();
             break;
-            
+
         case DashboardPage::SystemMonitor:
             SystemMonitorPage::draw();
+            drawStatusFooter();
+            break;
+
+        case DashboardPage::Network:
+            NetworkPage::draw();
             drawStatusFooter();
             break;
         }

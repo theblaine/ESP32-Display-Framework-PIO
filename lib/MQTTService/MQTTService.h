@@ -38,4 +38,8 @@ namespace MQTTService
 
     bool subscribe(
         const char *topic);
+
+    bool publish(
+        const char *topic,
+        const char *payload);
 }

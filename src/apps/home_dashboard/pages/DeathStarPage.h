@@ -1,6 +1,9 @@
 #pragma once
 
-namespace NetworkPage
+namespace DeathStarPage
 {
+    void handleMessage(
+        const char *payload);
+
     void draw();
 }

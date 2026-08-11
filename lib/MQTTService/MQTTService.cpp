@@ -228,4 +228,40 @@ namespace MQTTService
 
         return true;
     }
+
+    bool publish(
+        const char *topic,
+        const char *payload)
+    {
+        if (topic == nullptr ||
+            topic[0] == '\0' ||
+            payload == nullptr)
+        {
+            return false;
+        }
+
+        if (!g_mqttClient.connected())
+        {
+            LOGW("MQTT publish skipped: broker not connected.");
+            return false;
+        }
+
+        if (!g_mqttClient.publish(
+                topic,
+                payload))
+        {
+            LOGWF(
+                "Failed to publish MQTT topic: %s",
+                topic);
+
+            return false;
+        }
+
+        LOGF(
+            "Published MQTT topic: %s",
+            topic);
+
+        return true;
+    }
+
 }

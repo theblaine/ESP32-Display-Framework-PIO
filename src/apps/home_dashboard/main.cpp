@@ -45,6 +45,9 @@ namespace
     constexpr const char *PIHOLE_TOPIC =
         "home/dashboard/pihole";
 
+    constexpr const char *DEATHSTAR_PING_RESPONSE_TOPIC =
+        "home/deathstar/ping/response";
+
     enum class DashboardPage : uint8_t
     {
         HomeAssistant,
@@ -207,6 +210,16 @@ namespace
 
             return;
         }
+
+        if (strcmp(
+                topic,
+                DEATHSTAR_PING_RESPONSE_TOPIC) == 0)
+        {
+            DeathStarPage::handleMessage(
+                payload);
+
+            return;
+        }
     }
 
     void drawCurrentPage()
@@ -245,6 +258,11 @@ namespace
 
         case DashboardPage::Network:
             NetworkPage::draw();
+            drawStatusFooter();
+            break;
+
+        case DashboardPage::DeathStar:
+            DeathStarPage::draw();
             drawStatusFooter();
             break;
         }
@@ -319,6 +337,9 @@ void setup()
     MQTTService::subscribe(
         PIHOLE_TOPIC);
     g_rotationIndex = 0;
+
+    MQTTService::subscribe(
+        DEATHSTAR_PING_RESPONSE_TOPIC);
 
     g_currentPage =
         ROTATION_PAGES[g_rotationIndex];

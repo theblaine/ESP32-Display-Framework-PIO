@@ -8,10 +8,11 @@
 #include "Display_Widgets.h"
 #include "RGB_lamp.h"
 
-#include "secrets.h"
-
 #include "NetworkService.h"
 #include "MQTTService.h"
+#include "SD_Card.h"
+
+#include "secrets.h"
 
 #include "pages/TestPage.h"
 #include "pages/PiHolePage.h"
@@ -21,6 +22,7 @@
 #include "pages/SystemMonitorPage.h"
 #include "pages/NetworkPage.h"
 #include "pages/DeathStarPage.h"
+#include "pages/SDCardPage.h"
 
 namespace
 {
@@ -58,6 +60,7 @@ namespace
         SystemMonitor,
         Network,
         DeathStar,
+        SDCard,
     };
 
     /*
@@ -75,8 +78,9 @@ namespace
             // DashboardPage::Test,
             // DashboardPage::SystemStatus,
             // DashboardPage::SystemMonitor,
-            DashboardPage::Network,
+            // DashboardPage::Network,
             // DashboardPage::DeathStar,
+            DashboardPage::SDCard,
     };
 
     constexpr size_t ROTATION_PAGE_COUNT =
@@ -265,6 +269,11 @@ namespace
             DeathStarPage::draw();
             drawStatusFooter();
             break;
+
+        case DashboardPage::SDCard:
+            SDCardPage::draw();
+            drawStatusFooter();
+            break;
         }
     }
 
@@ -301,6 +310,8 @@ void setup()
 
     Display::begin();
     RGBLamp::begin();
+
+    SD_Init();
 
     NetworkService::addNetwork(
         WIFI_SSID_1,

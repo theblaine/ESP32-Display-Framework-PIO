@@ -8,6 +8,6 @@
 #define PROJECT_NAME           "ESP32 Display Framework"
 #define PROJECT_VERSION_MAJOR  0
 #define PROJECT_VERSION_MINOR  2
-#define PROJECT_VERSION_PATCH  8
+#define PROJECT_VERSION_PATCH  9
 
-#define PROJECT_VERSION        "0.2.8"
+#define PROJECT_VERSION        "0.2.9"

@@ -24,6 +24,7 @@
 #include "pages/NetworkPage.h"
 #include "pages/DeathStarPage.h"
 #include "pages/SDCardPage.h"
+#include "pages/ImagePage.h"
 
 namespace
 {
@@ -62,6 +63,7 @@ namespace
         Network,
         DeathStar,
         SDCard,
+        Image,
     };
 
     /*
@@ -82,6 +84,7 @@ namespace
             // DashboardPage::Network,
             // DashboardPage::DeathStar,
             DashboardPage::SDCard,
+            DashboardPage::Image,
     };
 
     constexpr size_t ROTATION_PAGE_COUNT =
@@ -273,6 +276,11 @@ namespace
 
         case DashboardPage::SDCard:
             SDCardPage::draw();
+            drawStatusFooter();
+            break;
+
+        case DashboardPage::Image:
+            ImagePage::draw();
             drawStatusFooter();
             break;
         }

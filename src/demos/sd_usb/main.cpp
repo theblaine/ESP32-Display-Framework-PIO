@@ -1,12 +1,10 @@
 #include <Arduino.h>
 
 #include "USB.h"
-#include "USBCDC.h"
 #include "USBMSC.h"
 
 #include "SD_MMC.h"
 
-USBCDC USBSerial;
 USBMSC MSC;
 
 namespace
@@ -24,159 +22,159 @@ namespace
 
     bool g_ejected = false;
 
-int32_t mscRead(
-    uint32_t lba,
-    uint32_t offset,
-    void *buffer,
-    uint32_t bufferSize)
-{
-    if (buffer == nullptr)
+    int32_t mscRead(
+        uint32_t lba,
+        uint32_t offset,
+        void *buffer,
+        uint32_t bufferSize)
     {
-        return -1;
-    }
-
-    uint8_t *destination =
-        static_cast<uint8_t *>(buffer);
-
-    uint32_t remaining =
-        bufferSize;
-
-    uint32_t currentLba =
-        lba;
-
-    uint32_t currentOffset =
-        offset;
-
-    while (remaining > 0)
-    {
-        if (currentOffset >=
-            EXPECTED_SECTOR_SIZE)
+        if (buffer == nullptr)
         {
             return -1;
         }
 
-        if (!SD_MMC.readRAW(
-                g_sectorBuffer,
-                currentLba))
+        uint8_t *destination =
+            static_cast<uint8_t *>(buffer);
+
+        uint32_t remaining =
+            bufferSize;
+
+        uint32_t currentLba =
+            lba;
+
+        uint32_t currentOffset =
+            offset;
+
+        while (remaining > 0)
         {
-            USBSerial.printf(
-                "MSC read failed | LBA: %lu\n",
-                static_cast<unsigned long>(
-                    currentLba));
-
-            return -1;
-        }
-
-        const uint32_t available =
-            EXPECTED_SECTOR_SIZE -
-            currentOffset;
-
-        const uint32_t bytesToCopy =
-            remaining < available
-                ? remaining
-                : available;
-
-        memcpy(
-            destination,
-            g_sectorBuffer +
-                currentOffset,
-            bytesToCopy);
-
-        destination +=
-            bytesToCopy;
-
-        remaining -=
-            bytesToCopy;
-
-        currentLba++;
-
-        currentOffset = 0;
-    }
-
-    return bufferSize;
-}
-
-int32_t mscWrite(
-    uint32_t lba,
-    uint32_t offset,
-    uint8_t *buffer,
-    uint32_t bufferSize)
-{
-    if (buffer == nullptr)
-    {
-        return -1;
-    }
-
-    uint8_t *source =
-        buffer;
-
-    uint32_t remaining =
-        bufferSize;
-
-    uint32_t currentLba =
-        lba;
-
-    uint32_t currentOffset =
-        offset;
-
-    while (remaining > 0)
-    {
-        if (currentOffset >=
-            EXPECTED_SECTOR_SIZE)
-        {
-            return -1;
-        }
-
-        const uint32_t available =
-            EXPECTED_SECTOR_SIZE -
-            currentOffset;
-
-        const uint32_t bytesToWrite =
-            remaining < available
-                ? remaining
-                : available;
-
-        /*
-         * Preserve untouched bytes for partial-sector writes.
-         */
-        if (currentOffset != 0 ||
-            bytesToWrite !=
+            if (currentOffset >=
                 EXPECTED_SECTOR_SIZE)
-        {
+            {
+                return -1;
+            }
+
             if (!SD_MMC.readRAW(
+                    g_sectorBuffer,
+                    currentLba))
+            {
+                Serial.printf(
+                    "MSC read failed | LBA: %lu\n",
+                    static_cast<unsigned long>(
+                        currentLba));
+
+                return -1;
+            }
+
+            const uint32_t available =
+                EXPECTED_SECTOR_SIZE -
+                currentOffset;
+
+            const uint32_t bytesToCopy =
+                remaining < available
+                    ? remaining
+                    : available;
+
+            memcpy(
+                destination,
+                g_sectorBuffer +
+                    currentOffset,
+                bytesToCopy);
+
+            destination +=
+                bytesToCopy;
+
+            remaining -=
+                bytesToCopy;
+
+            currentLba++;
+
+            currentOffset = 0;
+        }
+
+        return bufferSize;
+    }
+
+    int32_t mscWrite(
+        uint32_t lba,
+        uint32_t offset,
+        uint8_t *buffer,
+        uint32_t bufferSize)
+    {
+        if (buffer == nullptr)
+        {
+            return -1;
+        }
+
+        uint8_t *source =
+            buffer;
+
+        uint32_t remaining =
+            bufferSize;
+
+        uint32_t currentLba =
+            lba;
+
+        uint32_t currentOffset =
+            offset;
+
+        while (remaining > 0)
+        {
+            if (currentOffset >=
+                EXPECTED_SECTOR_SIZE)
+            {
+                return -1;
+            }
+
+            const uint32_t available =
+                EXPECTED_SECTOR_SIZE -
+                currentOffset;
+
+            const uint32_t bytesToWrite =
+                remaining < available
+                    ? remaining
+                    : available;
+
+            /*
+             * Preserve untouched bytes for partial-sector writes.
+             */
+            if (currentOffset != 0 ||
+                bytesToWrite !=
+                    EXPECTED_SECTOR_SIZE)
+            {
+                if (!SD_MMC.readRAW(
+                        g_sectorBuffer,
+                        currentLba))
+                {
+                    return -1;
+                }
+            }
+
+            memcpy(
+                g_sectorBuffer +
+                    currentOffset,
+                source,
+                bytesToWrite);
+
+            if (!SD_MMC.writeRAW(
                     g_sectorBuffer,
                     currentLba))
             {
                 return -1;
             }
+
+            source +=
+                bytesToWrite;
+
+            remaining -=
+                bytesToWrite;
+
+            currentLba++;
+
+            currentOffset = 0;
         }
 
-        memcpy(
-            g_sectorBuffer +
-                currentOffset,
-            source,
-            bytesToWrite);
-
-        if (!SD_MMC.writeRAW(
-                g_sectorBuffer,
-                currentLba))
-        {
-            return -1;
-        }
-
-        source +=
-            bytesToWrite;
-
-        remaining -=
-            bytesToWrite;
-
-        currentLba++;
-
-        currentOffset = 0;
+        return bufferSize;
     }
-
-    return bufferSize;
-}
 
     bool mscStartStop(
         uint8_t powerCondition,
@@ -188,7 +186,9 @@ int32_t mscWrite(
         {
             g_ejected = true;
 
-            USBSerial.println(
+            MSC.mediaPresent(false);
+
+            Serial.println(
                 "Windows ejected SD card.");
         }
 
@@ -198,7 +198,7 @@ int32_t mscWrite(
 
 void setup()
 {
-    USBSerial.begin();
+    Serial.begin(115200);
 
     delay(500);
 
@@ -210,7 +210,7 @@ void setup()
             SD_D2_PIN,
             SD_D3_PIN))
     {
-        USBSerial.println(
+        Serial.println(
             "SD pin configuration failed.");
 
         USB.begin();
@@ -222,7 +222,7 @@ void setup()
             true,
             true))
     {
-        USBSerial.println(
+        Serial.println(
             "SD initialization failed.");
 
         USB.begin();
@@ -239,7 +239,7 @@ void setup()
             EXPECTED_SECTOR_SIZE ||
         sectorCount <= 0)
     {
-        USBSerial.println(
+        Serial.println(
             "Unsupported SD geometry.");
 
         USB.begin();
@@ -258,7 +258,7 @@ void setup()
             sectorCount,
             sectorSize))
     {
-        USBSerial.println(
+        Serial.println(
             "USB MSC initialization failed.");
 
         USB.begin();
@@ -271,20 +271,20 @@ void setup()
 
     delay(1500);
 
-    USBSerial.println();
-    USBSerial.println("============================");
-    USBSerial.println(" SD USB Mass Storage Test");
-    USBSerial.println("============================");
+    Serial.println();
+    Serial.println("============================");
+    Serial.println(" SD USB Mass Storage Test");
+    Serial.println("============================");
 
-    USBSerial.printf(
+    Serial.printf(
         "Sector size : %d\n",
         sectorSize);
 
-    USBSerial.printf(
+    Serial.printf(
         "Sectors     : %d\n",
         sectorCount);
 
-    USBSerial.println(
+    Serial.println(
         "SD card exposed to Windows.");
 }
 
@@ -292,7 +292,7 @@ void loop()
 {
     if (g_ejected)
     {
-        USBSerial.println(
+        Serial.println(
             "SAFE TO UNPLUG / REBOOT");
 
         g_ejected = false;

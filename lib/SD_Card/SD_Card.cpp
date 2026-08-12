@@ -162,3 +162,42 @@ bool SD_ReadTextFile(
 
     return true;
 }
+
+
+uint32_t SD_SectorSize()
+{
+    return SD_MMC.sectorSize();
+}
+
+uint32_t SD_SectorCount()
+{
+    return SD_MMC.numSectors();
+}
+
+bool SD_ReadSector(
+    uint8_t* buffer,
+    uint32_t sector)
+{
+    if (buffer == nullptr)
+    {
+        return false;
+    }
+
+    return SD_MMC.readRAW(
+        buffer,
+        sector);
+}
+
+bool SD_WriteSector(
+    uint8_t* buffer,
+    uint32_t sector)
+{
+    if (buffer == nullptr)
+    {
+        return false;
+    }
+
+    return SD_MMC.writeRAW(
+        buffer,
+        sector);
+}

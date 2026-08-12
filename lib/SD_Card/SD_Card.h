@@ -40,6 +40,20 @@ bool SD_ReadTextFile(
     const char* path,
     String& contents);
 
+
+uint32_t SD_SectorSize();
+
+uint32_t SD_SectorCount();
+
+bool SD_ReadSector(
+    uint8_t* buffer,
+    uint32_t sector);
+
+bool SD_WriteSector(
+    uint8_t* buffer,
+    uint32_t sector);
+
+
 bool File_Search(const char* directory, const char* fileName);
 uint16_t Folder_retrieval(const char* directory, const char* fileExtension, char File_Name[][100],uint16_t maxFiles);
 void remove_file_extension(char *file_name);

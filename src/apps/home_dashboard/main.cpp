@@ -7,6 +7,7 @@
 #include "Display_GFX.h"
 #include "Display_Widgets.h"
 #include "RGB_lamp.h"
+#include "Buttons.h"
 
 #include "NetworkService.h"
 #include "MQTTService.h"
@@ -75,9 +76,9 @@ namespace
             // DashboardPage::HomeAssistant,
             // DashboardPage::FlightRadar,
             // DashboardPage::PiHole,
-            // DashboardPage::Test,
-            // DashboardPage::SystemStatus,
-            // DashboardPage::SystemMonitor,
+            DashboardPage::Test,
+            DashboardPage::SystemStatus,
+            DashboardPage::SystemMonitor,
             // DashboardPage::Network,
             // DashboardPage::DeathStar,
             DashboardPage::SDCard,
@@ -359,10 +360,35 @@ void setup()
 
     g_lastPageChangeTime =
         millis();
+
+    Buttons_Begin();
 }
 
 void loop()
 {
+    Buttons_Update();
+
+    if (Button_WasVeryLongPressed(
+            Button::Boot))
+    {
+        LOG("BOOT button: very long press");
+    }
+    else if (Button_WasLongPressed(
+                 Button::Boot))
+    {
+        LOG("BOOT button: long press");
+    }
+    else if (Button_WasPressed(
+                 Button::Boot))
+    {
+        LOG("BOOT button: short press");
+
+        advancePage();
+
+        g_lastPageChangeTime =
+            millis();
+    }
+
     NetworkService::loop();
     MQTTService::loop();
 
@@ -379,5 +405,5 @@ void loop()
         advancePage();
     }
 
-    delay(10);
+    delay(1);
 }

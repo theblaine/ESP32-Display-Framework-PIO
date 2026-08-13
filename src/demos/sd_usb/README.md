@@ -96,9 +96,12 @@ The following functionality has been tested successfully:
 
 The USB demo uses raw SD card sector access for USB Mass Storage.
 
-The `SD_Card` library provides the raw sector operations used by the
-USB storage implementation while retaining its existing filesystem
-helpers for normal ESP32 SD card access.
+The current `demo_sd_usb` implementation talks directly to `SD_MMC` and
+uses `SD_MMC.readRAW()` / `SD_MMC.writeRAW()` inside the USB Mass Storage
+callbacks.
+
+The framework `SD_Card` library also exposes raw-sector wrapper functions for
+future reusable code, but this demo does not currently call those wrappers.
 
 The USB Mass Storage functionality intentionally remains a separate
 demo/maintenance environment rather than being integrated into the

@@ -2,77 +2,76 @@
 
 ## Purpose
 
-This document defines the MQTT topics and JSON payloads used by the ESP32 Home Dashboard application.
+This document defines MQTT topics and payloads currently used by the ESP32 Home Dashboard application.
 
-The MQTT broker transports dashboard data. The ESP32 application owns the screen layout and rendering. Publishers such as Home Assistant, MQTT.fx, scripts, or other systems only send data updates.
+The ESP32 owns screen layout and rendering. MQTT publishers supply data only.
 
-## Broker Configuration
+The authoritative topic registration/routing code is in:
 
-Current development broker:
+```text
+src/apps/home_dashboard/main.cpp
+```
+
+## Current Development Broker
+
+Current application constants:
 
 ```text
 Host: 10.0.0.50
 Port: 1883
-Authentication: None
+Client ID: waveshare-home-dashboard
 ```
 
-Current ESP32 MQTT client ID:
+These are development values in `main.cpp`, not a generic framework requirement.
 
-```text
-waveshare-home-dashboard
-```
+## MQTTService Behavior
 
-These values are environment-specific configuration and may change later.
+The Home Dashboard:
 
-## General Message Rules
+1. starts `MQTTService`
+2. registers one message callback
+3. registers page topics
+4. calls `MQTTService::loop()` continuously
+5. lets `MQTTService` reconnect and re-subscribe automatically
 
-- Payloads must be valid JSON objects.
-- Field names are case-sensitive.
-- Values are currently sent as JSON strings.
-- Publishers may send a complete page snapshot or only the fields that changed.
-- Fields omitted from a message retain their previously stored values on the ESP32.
-- Malformed JSON is rejected and logged.
-- Use retained MQTT messages for persistent state data so the ESP32 receives the latest values after reconnecting.
+Messages are routed by exact topic string in `handleMqttMessage()`.
 
-Example partial update:
+## General JSON Pattern
 
-```json
-{
-  "aircraft": "34"
-}
-```
+Most dashboard topics use JSON.
 
-Example complete update:
+Typical page behavior:
 
-```json
-{
-  "feed": "Online",
-  "aircraft": "34",
-  "mlat": "Yes",
-  "updated": "Now"
-}
-```
+- malformed JSON is rejected/logged
+- page-specific handlers own parsing
+- a page stores the latest received data
+- if the page is visible when data arrives, it redraws immediately
+- if the page is not visible, the stored data appears when rotation later reaches it
 
----
+Some page handlers preserve omitted values; others use defaults. Check the page implementation before relying on partial JSON updates.
 
-## Home Assistant Page
+## Home Assistant
 
-### Topic
+Topic:
 
 ```text
 home/dashboard/homeassistant
 ```
 
-### Current Fields
+Current page source:
 
-| Field | Description | Example |
-|---|---|---|
-| `sparePlug13` | State of Home Assistant entity `switch.spare_plug_13_socket_1` | `"ON"` or `"OFF"` |
-| `alarm` | Reserved for a future alarm state | `"Disarmed"` |
-| `indoorTemperature` | Reserved for a future indoor-temperature value | `"72 F"` |
-| `humidity` | Reserved for a future humidity value | `"41%"` |
+```text
+HomeAssistantPage.cpp
+```
 
-### Current Live Payload
+The current MQTT handler parses only the `sparePlug13` field.
+
+The page also displays Alarm, Indoor Temperature, and Humidity rows, but those
+values are currently initialized placeholders rather than MQTT-driven fields.
+Do not assume those rows are populated from this topic until their handlers are
+implemented.
+
+Example:
 
 ```json
 {
@@ -80,148 +79,146 @@ home/dashboard/homeassistant
 }
 ```
 
-or:
+## FlightRadar24
 
-```json
-{
-  "sparePlug13": "OFF"
-}
-```
-
-### Current Home Assistant Automation
-
-```yaml
-alias: ESP32 Dashboard - Spare Plug 13
-description: Publishes Spare Plug 13 state to the ESP32 dashboard
-
-triggers:
-  - trigger: state
-    entity_id:
-      - switch.spare_plug_13_socket_1
-
-conditions: []
-
-actions:
-  - action: mqtt.publish
-    data:
-      topic: home/dashboard/homeassistant
-      payload: >-
-        {
-          "sparePlug13": "{{ states('switch.spare_plug_13_socket_1') | upper }}"
-        }
-      qos: 0
-      retain: true
-
-mode: restart
-```
-
-### ESP32 Display Mapping
-
-| MQTT Field | Display Label |
-|---|---|
-| `sparePlug13` | `Plug 13` |
-| `alarm` | `Alarm` |
-| `indoorTemperature` | `Indoor` |
-| `humidity` | `Humidity` |
-
-The `Plug 13` value is shown in green when `ON` and red when `OFF`.
-
----
-
-## FlightRadar24 Page
-
-### Topic
+Topic:
 
 ```text
 home/dashboard/flightradar
 ```
 
-### Current Fields
+Current fields:
 
-| Field | Description | Example |
-|---|---|---|
-| `feed` | Feeder status | `"Online"` |
-| `aircraft` | Aircraft count | `"34"` |
-| `mlat` | MLAT status | `"Yes"` |
-| `updated` | Human-readable last-update value | `"Now"` |
+```text
+feed
+aircraft
+mlat
+updated
+```
 
-### Complete Payload
+Example:
 
 ```json
 {
   "feed": "Online",
-  "aircraft": "34",
-  "mlat": "Yes",
+  "aircraft": "7",
+  "mlat": "No",
   "updated": "Now"
 }
 ```
 
-### Partial Payload Examples
+## Pi-hole
 
-```json
-{
-  "aircraft": "41"
-}
-```
-
-```json
-{
-  "updated": "5 sec"
-}
-```
-
-### ESP32 Display Mapping
-
-| MQTT Field | Display Label |
-|---|---|
-| `feed` | `Feed` |
-| `aircraft` | `Aircraft` |
-| `mlat` | `MLAT` |
-| `updated` | `Updated` |
-
-At present, FlightRadar24 data is being tested manually with MQTT.fx. A real publisher has not yet been implemented.
-
----
-
-## Pi-hole Page
-
-### Planned Topic
+Topic:
 
 ```text
 home/dashboard/pihole
 ```
 
-### Planned Fields
+Current fields:
 
-| Field | Description | Example |
-|---|---|---|
-| `status` | Pi-hole service status | `"Online"` |
-| `queries` | DNS query count | `"12,438"` |
-| `blocked` | Blocked-query percentage | `"8.4%"` |
-| `clients` | Client count | `"27"` |
+```text
+status
+queries
+blocked
+clients
+```
 
-### Planned Payload
+Example:
 
 ```json
 {
   "status": "Online",
-  "queries": "12,438",
-  "blocked": "8.4%",
-  "clients": "27"
+  "queries": "13,653",
+  "blocked": "12.6%",
+  "clients": "6"
 }
 ```
 
-This topic is documented for planning only. The ESP32 is not yet subscribed to it.
+The current implementation is active, not merely planned.
 
----
+## DeathStar Ping Response
+
+Response topic:
+
+```text
+home/deathstar/ping/response
+```
+
+When `DeathStarPage::draw()` runs, it publishes:
+
+```text
+Topic: home/deathstar/ping
+Payload: status
+```
+
+Expected response JSON fields:
+
+```text
+hostname
+internal_ip
+external_ip
+vpn_status
+timestamp
+```
+
+Example:
+
+```json
+{
+  "hostname": "DEATHSTAR",
+  "internal_ip": "10.0.0.14",
+  "external_ip": "73.192.212.24",
+  "vpn_status": "Disconnected",
+  "timestamp": "2026-08-10T21:25:14"
+}
+```
+
+## Device Overview
+
+Topic:
+
+```text
+home/dashboard/deviceoverview
+```
+
+Current fields:
+
+```text
+location
+status
+```
+
+Example:
+
+```json
+{
+  "location": "Home Office",
+  "status": "Online"
+}
+```
+
+`DeviceOverviewPage` combines this MQTT data with local state:
+
+- IP address from `NetworkService`
+- RSSI from `NetworkService`
+- Wi-Fi state
+- MQTT connection state
+- PNG asset loaded from SD card
+- signal meter derived from RSSI
+
+This is the best current example of a composite page using both local and external data.
 
 ## Topic Summary
 
-| Page | Topic | Status |
+| Function/Page | Topic | Direction |
 |---|---|---|
-| Home Assistant | `home/dashboard/homeassistant` | Implemented and live |
-| FlightRadar24 | `home/dashboard/flightradar` | Implemented; currently tested with MQTT.fx |
-| Pi-hole | `home/dashboard/pihole` | Planned |
+| Home Assistant | `home/dashboard/homeassistant` | Broker → ESP32 |
+| FlightRadar24 | `home/dashboard/flightradar` | Broker → ESP32 |
+| Pi-hole | `home/dashboard/pihole` | Broker → ESP32 |
+| Device Overview | `home/dashboard/deviceoverview` | Broker → ESP32 |
+| DeathStar request | `home/deathstar/ping` | ESP32 → Broker |
+| DeathStar response | `home/deathstar/ping/response` | Broker → ESP32 |
 
 ## Testing with MQTT.fx
 
@@ -231,49 +228,58 @@ Subscribe to:
 home/dashboard/#
 ```
 
-Publish valid JSON to the desired page topic.
-
-Example:
+For Device Overview, publish:
 
 **Topic**
 
 ```text
-home/dashboard/homeassistant
+home/dashboard/deviceoverview
 ```
 
 **Payload**
 
 ```json
 {
-  "sparePlug13": "ON"
+  "location": "Garage",
+  "status": "Offline"
 }
 ```
 
-Publishing plain text such as:
+Expected result when Device Overview is visible:
 
-```text
-blaine
+- page redraws immediately
+- Location becomes `Garage`
+- Status becomes red `Offline`
+
+Publish again with:
+
+```json
+{
+  "location": "Home Office",
+  "status": "Online"
+}
 ```
 
-will fail JSON parsing and produce an `InvalidInput` warning in the ESP32 serial log.
+Status becomes green `Online`.
 
-## Design Notes
+## Adding a New MQTT Page
 
-- MQTT is a transport layer, not the UI definition.
-- The ESP32 application controls page layouts, labels, colors, and page rotation.
-- Topic-specific handlers update stored page data.
-- A visible page redraws immediately when its data changes.
-- A non-visible page displays the latest stored data when normal rotation reaches it.
-- The MQTT service remembers subscriptions and re-subscribes after reconnecting.
+See:
 
-## Future Additions
+```text
+docs/CREATING_PAGES.md
+```
 
-Potential future fields and pages should be added here before or alongside implementation.
+The standard pattern is:
 
-Likely next additions:
+1. add page `handleMessage(payload)`
+2. add topic constant in `main.cpp`
+3. register with `MQTTService::subscribe()`
+4. route topic in the central callback
+5. redraw only when that page is currently visible
 
-- More Home Assistant entities
-- Live Pi-hole statistics
-- Real FlightRadar24 publishing
-- Complete retained snapshots for each dashboard page
-- A non-secret configuration file for broker address, port, topics, and page timing
+## Retained Messages
+
+For state-like data, retained MQTT messages are usually useful because a reconnecting ESP32 can immediately receive the latest state.
+
+Whether a publisher should retain a message is an application decision rather than enforced by the framework.

@@ -5,6 +5,12 @@
 This document contains hardware-specific information for the Waveshare
 ESP32-S3-LCD-1.47 development board.
 
+For framework-wide portability and support status, also see:
+
+```text
+docs/BOARD_SUPPORT.md
+```
+
 ---
 
 # MCU
@@ -20,7 +26,7 @@ ESP32-S3-LCD-1.47 development board.
 
 # PlatformIO
 
-Working configuration:
+Working shared configuration:
 
 ```ini
 board = esp32-s3-devkitc1-n16r8
@@ -30,7 +36,11 @@ board_build.flash_size = 16MB
 
 build_flags =
     -DBOARD_HAS_PSRAM
+    -DDISPLAY_BOARD_WAVESHARE_147
 ```
+
+Individual environments may add or override settings. The authoritative
+configuration is always `platformio.ini`.
 
 ---
 
@@ -40,7 +50,14 @@ build_flags =
 |------|-------|
 | Controller | ST7789 |
 | Resolution | 172×320 |
-| Library | Display_ST7789 |
+| Public facade | `lib/Display` |
+| Graphics | `lib/Display_GFX` |
+| Text | `lib/Display_Text` |
+| Widgets | `lib/Display_Widgets` |
+| Low-level driver | `lib/Display_ST7789` |
+
+Application/page code should normally use the public display libraries
+rather than call `Display_ST7789` directly.
 
 ---
 
@@ -50,13 +67,27 @@ Status: Working
 
 Library:
 
-```
+```text
 lib/SD_Card
 ```
 
-Notes:
+Interface:
 
-- PNG demo expects images in the root directory.
+```text
+SD_MMC
+```
+
+Pin assignments are defined in `SD_Card.h`.
+
+Current uses include:
+
+- text/configuration files
+- JSON application data
+- PNG assets
+- raw-sector helpers
+- Windows USB Mass Storage maintenance through `demo_sd_usb`
+
+The PNG demo searches for `.png` files on the SD-card root.
 
 ---
 
@@ -66,7 +97,7 @@ Status: Working
 
 Library:
 
-```
+```text
 lib/RGB_Lamp
 ```
 
@@ -82,17 +113,48 @@ Notes:
 
 Status: Working
 
-Library:
+Preferred application service:
 
-```
-WiFiMulti (ESP32 Arduino Core)
+```text
+lib/NetworkService
 ```
 
 Notes:
 
-- Supports multiple configured Wi-Fi networks.
-- Automatic reconnect enabled.
-- Uses the shared `Logger` library for diagnostics.
+- Up to three candidate networks are currently configured by the Home Dashboard.
+- `NetworkService` uses `WiFiMulti` internally.
+- Automatic reconnect/connection management is handled by the service.
+- Current SSID, IP address, and RSSI are exposed through the public API.
+- Shared diagnostics use `Logger`.
+
+New applications should prefer `NetworkService` rather than call
+`WiFiMulti` directly.
+
+---
+
+# MQTT
+
+Status: Working
+
+Preferred application service:
+
+```text
+lib/MQTTService
+```
+
+Notes:
+
+- Uses PubSubClient.
+- Handles broker connection/reconnection.
+- Registered subscriptions are restored after reconnect.
+- Exposes publish, subscribe, connection state, and one application callback.
+- The Home Dashboard routes topics centrally in `main.cpp`.
+
+See:
+
+```text
+docs/MQTT-Protocol.md
+```
 
 ---
 
@@ -102,7 +164,7 @@ Status: Working
 
 Library:
 
-```
+```text
 lib/Logger
 ```
 
@@ -110,10 +172,7 @@ Notes:
 
 - Centralized logging interface.
 - Currently outputs using `printf()`.
-- Supports:
-  - INFO
-  - WARN
-  - ERROR
+- Supports INFO, WARN, and ERROR macros.
 - Designed to support additional outputs in the future.
 
 ---
@@ -126,7 +185,18 @@ Notes:
 | Active state | LOW |
 | Library | `lib/Buttons` |
 
-The widget demo uses short, long, and three-second very-long press events.
+The current button library supports:
+
+- short press
+- long press
+- very-long press
+
+In the Home Dashboard, short press advances to the next configured page.
+
+With the USB connector at the top and display facing you:
+
+- top-right: BOOT
+- top-left: RESET
 
 ---
 
@@ -134,9 +204,10 @@ The widget demo uses short, long, and three-second very-long press events.
 
 | Function | GPIO |
 |----------|------|
-| LCD | See Display_ST7789 |
-| SD | See SD_Card |
-| RGB | See RGB_Lamp |
+| LCD | See `Display_ST7789` / board configuration |
+| SD | See `SD_Card.h` |
+| RGB | See `RGB_lamp.h` |
+| BOOT | 0 |
 
 ---
 
@@ -144,13 +215,18 @@ The widget demo uses short, long, and three-second very-long press events.
 
 | Feature | Status |
 |---------|--------|
-| LVGL | ✅ |
-| PNG / SD Card | ✅ |
-| WiFiMulti | ✅ |
+| Display / ST7789 | ✅ |
+| Display graphics/text/widgets | ✅ |
+| LVGL factory/demo support | ✅ |
+| PNG from SD card | ✅ |
+| SD JSON/text access | ✅ |
+| Windows SD USB maintenance | ✅ |
+| NetworkService / Wi-Fi | ✅ |
+| MQTTService / MQTT | ✅ |
 | RGB LED | ✅ |
-| BLE | ☐ |
-| OTA | ☐ |
-| MQTT | ☐ |
+| BOOT button events | ✅ |
+| BLE | Not used by current framework application |
+| OTA | Not implemented |
 
 ---
 
@@ -164,14 +240,19 @@ The widget demo uses short, long, and three-second very-long press events.
 | `demo_display_graphics` | Graphics primitives | ✅ |
 | `demo_factory` | Original combined hardware demo | ✅ |
 | `demo_png` | PNG rendering from microSD | ✅ |
-| `demo_wifi` | Wi-Fi connectivity and scanning | ✅ |
+| `demo_wifi` | Wi-Fi connectivity | ✅ |
+| `demo_mqtt` | MQTT connectivity | ✅ |
+| `demo_sd` | SD-card access | ✅ |
+| `demo_sd_usb` | Windows USB Mass Storage access to microSD | ✅ |
 | `demo_rgb` | RGB LED control | ✅ |
+
+The authoritative environment list is `platformio.ini`.
 
 ---
 
 # Project Layout
 
-```
+```text
 lib/
 include/
 src/
@@ -180,18 +261,23 @@ docs/
 
 ---
 
-# Useful Links
+# Serial Output
 
-- Waveshare Wiki
-- Waveshare GitHub
-- LVGL
-- PNGdec
+- Shared monitor speed: **115200 baud**
+- Normal framework logging currently uses `printf()`.
+- Normal Home Dashboard serial monitoring is verified.
+- `demo_sd_usb` is a special native-USB maintenance environment; do not
+  rely on its serial behavior as representative of the normal application.
 
 ---
 
-# Serial Output
+# Related Documentation
 
-- Serial monitor: **115200 baud**
-- `printf()` is verified working through the board's USB serial connection.
-- Arduino `Serial` is not currently used by the template.
-- The shared `Logger` library currently outputs through `printf()`.
+```text
+docs/GETTING_STARTED.md
+docs/FRAMEWORK_OVERVIEW.md
+docs/LIBRARY_REFERENCE.md
+docs/BOARD_SUPPORT.md
+docs/SD_CARD_GUIDE.md
+docs/MQTT-Protocol.md
+```

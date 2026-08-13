@@ -25,6 +25,7 @@
 #include "pages/DeathStarPage.h"
 #include "pages/SDCardPage.h"
 #include "pages/ImagePage.h"
+#include "pages/DeviceOverviewPage.h"
 
 namespace
 {
@@ -52,6 +53,9 @@ namespace
     constexpr const char *DEATHSTAR_PING_RESPONSE_TOPIC =
         "home/deathstar/ping/response";
 
+    constexpr const char *DEVICE_OVERVIEW_TOPIC =
+        "home/dashboard/deviceoverview";
+
     enum class DashboardPage : uint8_t
     {
         HomeAssistant,
@@ -64,6 +68,7 @@ namespace
         DeathStar,
         SDCard,
         Image,
+        DeviceOverview,
     };
 
     /*
@@ -84,7 +89,8 @@ namespace
             // DashboardPage::Network,
             // DashboardPage::DeathStar,
             // DashboardPage::SDCard,
-            DashboardPage::Image,
+            // DashboardPage::Image,
+            DashboardPage::DeviceOverview,
     };
 
     constexpr size_t ROTATION_PAGE_COUNT =
@@ -228,6 +234,23 @@ namespace
 
             return;
         }
+
+        if (strcmp(
+                topic,
+                DEVICE_OVERVIEW_TOPIC) == 0)
+        {
+            DeviceOverviewPage::handleMessage(
+                payload);
+
+            if (g_currentPage ==
+                DashboardPage::DeviceOverview)
+            {
+                DeviceOverviewPage::draw();
+                drawStatusFooter();
+            }
+
+            return;
+        }
     }
 
     void drawCurrentPage()
@@ -281,6 +304,11 @@ namespace
 
         case DashboardPage::Image:
             ImagePage::draw();
+            drawStatusFooter();
+            break;
+
+        case DashboardPage::DeviceOverview:
+            DeviceOverviewPage::draw();
             drawStatusFooter();
             break;
         }
@@ -360,6 +388,9 @@ void setup()
 
     MQTTService::subscribe(
         DEATHSTAR_PING_RESPONSE_TOPIC);
+
+    MQTTService::subscribe(
+        DEVICE_OVERVIEW_TOPIC);
 
     g_currentPage =
         ROTATION_PAGES[g_rotationIndex];

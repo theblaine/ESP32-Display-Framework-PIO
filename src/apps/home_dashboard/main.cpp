@@ -78,12 +78,12 @@ namespace
             // DashboardPage::HomeAssistant,
             // DashboardPage::FlightRadar,
             // DashboardPage::PiHole,
-            DashboardPage::Test,
-            DashboardPage::SystemStatus,
-            DashboardPage::SystemMonitor,
+            // DashboardPage::Test,
+            // DashboardPage::SystemStatus,
+            // DashboardPage::SystemMonitor,
             // DashboardPage::Network,
             // DashboardPage::DeathStar,
-            DashboardPage::SDCard,
+            // DashboardPage::SDCard,
             DashboardPage::Image,
     };
 

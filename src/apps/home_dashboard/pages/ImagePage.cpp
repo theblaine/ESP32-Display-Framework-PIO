@@ -2,6 +2,7 @@
 
 #include "Display.h"
 #include "Display_GFX.h"
+#include "Display_Widgets.h"
 #include "Logger.h"
 #include "PNG_Image.h"
 
@@ -12,9 +13,27 @@ namespace ImagePage
         Display_FillScreen(
             Color::Black);
 
-        PNGImage_Draw(
-            "/WaveshareImage2.png");
+        Display_DrawHeaderBar(
+            "Image",
+            Color::Blue,
+            Color::White,
+            Color::White,
+            2,
+            34);
 
-        LOG("Displayed Image page.");
+        const bool imageLoaded =
+            PNGImage_Draw(
+                "/Sunset_140x140.png",
+                16,
+                48);
+
+        if (imageLoaded)
+        {
+            LOG("Image page PNG loaded.");
+        }
+        else
+        {
+            LOGE("Image page PNG failed to load.");
+        }
     }
 }

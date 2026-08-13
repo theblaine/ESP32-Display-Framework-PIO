@@ -1,149 +1,144 @@
 #include "image_demo.h"
+
 #include "Logger.h"
+#include "PNG_Image.h"
+#include "SD_Card.h"
 
-PNG png;
-File Image_file;
-
-uint16_t Image_CNT;
-char SD_Image_Name[100][100];
-char File_Image_Name[100][100];
-
-int16_t xpos = 0;
-int16_t ypos = 0;
-void *pngOpen(const char *filePath, int32_t *size)
+namespace
 {
-    Image_file = SD_MMC.open(filePath);
-    *size = Image_file.size();
-    return &Image_file;
+    constexpr uint16_t MAX_IMAGES = 100;
+
+    uint16_t g_imageCount = 0;
+    uint16_t g_currentImage = 0;
+
+    char g_sdImageNames[MAX_IMAGES][100];
+    char g_fileImageNames[MAX_IMAGES][100];
 }
 
-void pngClose(void *handle)
+void Search_Image(
+    const char *directory,
+    const char *fileExtension)
 {
-    File Image_file = *((File *)handle);
-    if (Image_file)
-        Image_file.close();
-}
+    g_imageCount =
+        Folder_retrieval(
+            directory,
+            fileExtension,
+            g_sdImageNames,
+            MAX_IMAGES);
 
-int32_t pngRead(PNGFILE *page, uint8_t *buffer, int32_t length)
-{
-    if (!Image_file)
-        return 0;
-    page = page; // Avoid warning
-    return Image_file.read(buffer, length);
-}
-
-int32_t pngSeek(PNGFILE *page, int32_t position)
-{
-    if (!Image_file)
-        return 0;
-    page = page; // Avoid warning
-    return Image_file.seek(position);
-}
-//=========================================v==========================================
-//                                      pngDraw
-//====================================================================================
-// This next function will be called during decoding of the png file to
-// render each image line to the TFT.  If you use a different TFT library
-// you will need to adapt this function to suit.
-// Callback function to draw pixels to the display
-static uint16_t lineBuffer[MAX_IMAGE_WIDTH];
-void pngDraw(PNGDRAW *pDraw)
-{
-    png.getLineAsRGB565(pDraw, lineBuffer, PNG_RGB565_BIG_ENDIAN, 0xffffffff);
-    uint32_t size = pDraw->iWidth;
-    for (size_t i = 0; i < size; i++)
+    if (g_imageCount == 0)
     {
-        lineBuffer[i] = (((lineBuffer[i] >> 8) & 0xFF) | ((lineBuffer[i] << 8) & 0xFF00));
+        return;
     }
-    LCD_AddWindow(xpos, pDraw->y, xpos + pDraw->iWidth, ypos + pDraw->y, lineBuffer); // x_end End index on x-axis (x_end not included)
-}
-/////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////////////////////////////
-
-void Search_Image(const char *directory, const char *fileExtension)
-{
-    Image_CNT = Folder_retrieval(directory, fileExtension, SD_Image_Name, 100);
-    if (Image_CNT)
+    for (uint16_t i = 0;
+         i < g_imageCount;
+         i++)
     {
-        for (int i = 0; i < Image_CNT; i++)
-        {
-            strcpy(File_Image_Name[i], SD_Image_Name[i]);
-            remove_file_extension(File_Image_Name[i]);
-        }
-    }
-}
-void Show_Image(const char *filePath)
-{
-    LOGF("Currently display picture %s", filePath);
-    int16_t ret = png.open(filePath, pngOpen, pngClose, pngRead, pngSeek, pngDraw);
-    if (ret == PNG_SUCCESS)
-    {
-        LOGF("Image: %dx%d, %d bpp, pixel type %d",
-             png.getWidth(),
-             png.getHeight(),
-             png.getBpp(),
-             png.getPixelType());
+        strcpy(
+            g_fileImageNames[i],
+            g_sdImageNames[i]);
 
-        uint32_t dt = millis();
-        if (png.getWidth() > MAX_IMAGE_WIDTH)
-        {
-            LOGE("Image too wide for allocated line buffer size!");
-        }
-        else
-        {
-            ret = png.decode(NULL, 0);
-            png.close();
-        }
-        LOGF("Decode time: %lu ms", millis() - dt);
+        remove_file_extension(
+            g_fileImageNames[i]);
     }
 }
 
-void Display_Image(const char *directory, const char *fileExtension, uint16_t ID)
+void Display_Image(
+    const char *directory,
+    const char *fileExtension,
+    uint16_t id)
 {
-    Search_Image(directory, fileExtension);
-    if (Image_CNT)
+    Search_Image(
+        directory,
+        fileExtension);
+
+    if (g_imageCount == 0)
     {
-        String FilePath;
-        if (String(directory) == "/")
-        { // Handle the case when the directory is the root
-            FilePath = String(directory) + SD_Image_Name[ID];
-        }
-        else
-        {
-            FilePath = String(directory) + "/" + SD_Image_Name[ID];
-        }
-        const char *filePathCStr = FilePath.c_str(); // Convert String to c_str() for Show_Image function
-        Show_Image(filePathCStr);                    // Show the image using the file path
+        LOGEF(
+            "No '%s' files found in '%s'.",
+            fileExtension,
+            directory);
+
+        return;
+    }
+
+    if (id >= g_imageCount)
+    {
+        id = 0;
+    }
+
+    String filePath;
+
+    if (String(directory) == "/")
+    {
+        filePath =
+            String(directory) +
+            g_sdImageNames[id];
     }
     else
-        LOGEF("No '%s' files found in '%s'.",
-              fileExtension,
-              directory);
-}
-uint16_t Now_Image = 0;
-void Image_Next(const char *directory, const char *fileExtension)
-{
-    if (!digitalRead(BOOT_KEY_PIN))
     {
-        while (!digitalRead(BOOT_KEY_PIN))
-            ;
-        Now_Image++;
-        if (Now_Image == Image_CNT)
-            Now_Image = 0;
-        Display_Image(directory, fileExtension, Now_Image);
+        filePath =
+            String(directory) +
+            "/" +
+            g_sdImageNames[id];
+    }
+
+    LOGF(
+        "Displaying PNG: %s",
+        filePath.c_str());
+
+    if (!PNGImage_Draw(
+            filePath.c_str(),
+            0,
+            0))
+    {
+        LOGEF(
+            "Failed to display PNG: %s",
+            filePath.c_str());
     }
 }
-void Image_Next_Loop(const char *directory, const char *fileExtension, uint32_t NextTime)
+
+void Image_Next_Loop(
+    const char *directory,
+    const char *fileExtension,
+    uint32_t nextTime)
 {
-    static uint32_t NextTime_Now = 0;
-    NextTime_Now++;
-    if (NextTime_Now == NextTime)
+    static uint32_t nextTimeNow = 0;
+
+    nextTimeNow++;
+
+    if (nextTimeNow < nextTime)
     {
-        NextTime_Now = 0;
-        Now_Image++;
-        if (Now_Image == Image_CNT)
-            Now_Image = 0;
-        Display_Image(directory, fileExtension, Now_Image);
+        return;
     }
+
+    nextTimeNow = 0;
+
+    Search_Image(
+        directory,
+        fileExtension);
+
+    if (g_imageCount == 0)
+    {
+        LOGEF(
+            "No '%s' files found in '%s'.",
+            fileExtension,
+            directory);
+
+        return;
+    }
+
+    g_currentImage++;
+
+    if (g_currentImage >=
+        g_imageCount)
+    {
+        g_currentImage = 0;
+    }
+
+    Display_Image(
+        directory,
+        fileExtension,
+        g_currentImage);
 }

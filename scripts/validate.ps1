@@ -12,10 +12,12 @@ $environments = @(
 
     "demo_display_graphics",
     "demo_display_text",
+    "demo_display_console",
     "demo_display_widgets",
     "demo_factory",
     "demo_png",
     "demo_sd",
+    "demo_sd_usb",
     "demo_rgb",
     "demo_wifi",
     "demo_mqtt",

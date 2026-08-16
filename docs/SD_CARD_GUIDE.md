@@ -103,8 +103,8 @@ otherwise noted.
 |---|---|---:|---|
 | `/status.json` | `SDCardPage` | Yes, for that page | Structured JSON page data |
 | `/Network_80x80.png` | `DeviceOverviewPage` | Yes, for that page | 80×80 network image |
-| `/WaveshareImage2.png` | `ImagePage` | Depends on current page code | Full-screen PNG image |
-| `/Sunset_140x140.png` | PNG testing | No | Positioned PNG example |
+| `/Sunset_140x140.png` | `ImagePage` | Yes, for that page image | Positioned PNG image |
+| `/message.txt` | `demo_sd` | Yes, for that demo | Plain-text read test |
 
 The repository contains an:
 
@@ -142,13 +142,15 @@ The page expects a JSON file named:
 
 in the root of the physical SD card.
 
-A repository-side example is provided as:
+A ready-to-copy file and an editable example are provided as:
 
 ```text
+sdcard/status.json
 sdcard/status.example.json
 ```
 
-Copy that file to the physical SD card and rename it:
+Copy `sdcard/status.json` to the root of the physical SD card without
+renaming it:
 
 ```text
 status.json
@@ -234,45 +236,26 @@ If the image is not present on the physical SD card, the remainder of the
 page can still contain locally generated information, but the PNG itself
 cannot be displayed.
 
-The image is not currently included in the repository.
-
----
-
-## `/WaveshareImage2.png`
-
-Used/tested by:
-
-```text
-ImagePage
-```
-
-Tested image size:
-
-```text
-172 × 320 pixels
-```
-
-This matches the full display resolution of the Waveshare
-ESP32-S3-LCD-1.47.
-
-This file was used to prove full-screen PNG decoding and rendering from the
-SD card.
-
-The image is not currently included in the repository.
+The image is included as `sdcard/Network_80x80.png` and can be copied directly
+to the physical SD-card root.
 
 ---
 
 ## `/Sunset_140x140.png`
 
-This is an optional PNG used while testing positioned image rendering.
+Used by:
 
-Tested image size:
+```text
+ImagePage
+```
+
+The filename indicates an image size of:
 
 ```text
 140 × 140 pixels
 ```
 
-Tested draw call:
+Current draw call:
 
 ```cpp
 PNGImage_Draw(
@@ -289,8 +272,27 @@ On a 172-pixel-wide display:
 
 so an X position of `16` horizontally centers the image.
 
-This file is not required by the Home Dashboard and is not currently included
-in the repository.
+This file is included as `sdcard/Sunset_140x140.png` and can be copied directly
+to the physical SD-card root.
+
+---
+
+## `/message.txt`
+
+Used by:
+
+```text
+demo_sd
+```
+
+The demo mounts the card, reads this file from the card root, logs its
+contents, and displays the contents on its status screen.
+
+A ready-to-copy file is included as:
+
+```text
+sdcard/message.txt
+```
 
 ---
 
@@ -370,8 +372,8 @@ Current PNG behavior:
 
 Prepare PNG assets at the size they should appear on the display.
 
-Full-screen `172×320`, positioned `140×140`, and positioned `80×80` assets
-have been tested.
+The sample payload includes the positioned `140×140` and `80×80` assets used
+by the Home Dashboard, plus four full-screen 172×320 slideshow images.
 
 ---
 
@@ -382,7 +384,15 @@ The repository contains:
 ```text
 sdcard/
 ├── README.md
-└── status.example.json
+├── message.txt
+├── Network_80x80.png
+├── status.json
+├── status.example.json
+├── Sunset_140x140.png
+├── WaveshareImage1.png
+├── WaveshareImage2.png
+├── WaveshareImage4.png
+└── WaveshareImage6.png
 ```
 
 This directory exists to help someone preparing a physical SD card understand
@@ -390,27 +400,28 @@ what files the application expects.
 
 It should not be confused with the physical SD-card filesystem.
 
-For example:
+Copy the directory contents to the physical card root. For example:
 
 ```text
 Repository:
-sdcard/status.example.json
-```
+sdcard/status.json
 
-becomes:
-
-```text
 Physical SD card:
 /status.json
 ```
 
-after copying and renaming the example file.
+`status.example.json` is preserved as an editable example but is not read by
+the firmware.
 
-Additional example files may be added to the repository-side `sdcard/`
-directory as the framework grows.
+The payload includes all files referenced by the Home Dashboard and SD demo.
+It also includes these four full-screen samples for `demo_png`:
 
-Large, personal, copyrighted, or project-specific image assets do not need to
-be stored in the repository merely because they are used during development.
+```text
+/WaveshareImage1.png
+/WaveshareImage2.png
+/WaveshareImage4.png
+/WaveshareImage6.png
+```
 
 ---
 
@@ -549,8 +560,9 @@ Examples:
 
 ```text
 status.json
+message.txt
 Network_80x80.png
-WaveshareImage2.png
+Sunset_140x140.png
 ```
 
 You can:
@@ -676,9 +688,12 @@ demo_sd_usb
 Use these demos before modifying the Home Dashboard when testing a new SD or
 image capability.
 
-- `demo_sd` — basic SD-card access
-- `demo_png` — PNG files loaded and rendered from SD
-- `demo_sd_usb` — expose the SD card to Windows
+- `demo_sd` — reads `/message.txt` from the card root
+- `demo_png` — enumerates and renders lowercase `.png` files from the card root; no specific filename is required
+- `demo_sd_usb` — exposes the complete SD card to Windows and requires no named content file
+
+The factory demo also initializes the SD card and displays its capacity, but
+does not expect a named file on the card.
 
 ---
 

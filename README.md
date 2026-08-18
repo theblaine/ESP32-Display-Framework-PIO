@@ -1,6 +1,6 @@
 # ESP32 Display Framework for PlatformIO
 
-**Current version: v0.2.11**
+**Current version: v0.2.12**
 
 A reusable PlatformIO framework for ESP32 display projects. The project separates board-specific display configuration, reusable drawing/UI libraries, hardware services, focused demos, and modular applications so that future projects can reuse only the pieces they need.
 
@@ -68,6 +68,7 @@ ESP32-Display-Framework-PIO/
 │   ├── Logger/
 │   ├── MQTTService/
 │   ├── NetworkService/
+│   ├── TimeService/
 │   ├── PNG_Image/
 │   ├── RGB_Lamp/
 │   └── SD_Card/
@@ -88,6 +89,7 @@ Applications / Demos
         ├── Pages
         ├── NetworkService
         ├── MQTTService
+        ├── TimeService
         ├── SD_Card
         ├── Buttons
         ├── RGB_Lamp
@@ -138,6 +140,7 @@ Current page modules include:
 - shared status footer
 - Wi-Fi configuration
 - MQTT client setup and topic routing
+- global NTP/local-time initialization
 
 Each page owns its own drawing and page-specific data.
 
@@ -157,6 +160,7 @@ The repository includes independent demos so capabilities can be tested without 
 | `demo_png` | PNG files rendered from microSD |
 | `demo_wifi` | Wi-Fi connectivity |
 | `demo_mqtt` | MQTT connectivity |
+| `demo_ntp` | Wi-Fi + NTP synchronization + display output |
 | `demo_sd` | SD-card access |
 | `demo_sd_usb` | Expose the SD card to Windows as USB Mass Storage |
 | `demo_rgb` | Addressable RGB LED |

@@ -22,6 +22,7 @@ For exact parameter lists, the public header in `lib/<Library>/` remains the sou
 | Logging | `Logger.h` |
 | Wi-Fi management/state | `NetworkService.h` |
 | MQTT connection/subscribe/publish | `MQTTService.h` |
+| NTP synchronization and local date/time | `TimeService.h` |
 | Project version macros | `ProjectVersion.h` |
 
 ## Display
@@ -376,6 +377,46 @@ void handleMqttMessage(
     const char *topic,
     const char *payload);
 ```
+
+## TimeService
+
+Header:
+
+```cpp
+#include "TimeService.h"
+```
+
+Start NTP and configure the local timezone after starting Wi-Fi:
+
+```cpp
+TimeService::begin(
+    "PST8PDT,M3.2.0,M11.1.0");
+```
+
+`begin(...)` accepts a POSIX timezone string plus optional primary and
+secondary NTP server names. It uses ESP32 `configTzTime(...)`, which applies
+the timezone and starts background NTP synchronization. No `TimeService::loop()`
+call is required.
+
+Main API:
+
+```cpp
+TimeService::begin(timezone, ntpServer1, ntpServer2);
+TimeService::isSynced();
+TimeService::timeString();
+TimeService::dateString();
+TimeService::dateTimeString();
+TimeService::now();
+```
+
+`isSynced()` reports whether the system clock has reached a valid synchronized
+time. The formatting helpers return local 12-hour time, date, or combined
+date/time strings and return visible placeholders while synchronization is
+pending. `now()` returns the current `time_t` system-clock value.
+
+The Home Dashboard initializes the service globally in `main.cpp`, and
+`SystemStatusPage` reads it. The `demo_ntp` environment is the focused hardware
+test for Wi-Fi + NTP + display output.
 
 ## Buttons
 

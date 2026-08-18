@@ -21,6 +21,7 @@ $environments = @(
     "demo_rgb",
     "demo_wifi",
     "demo_mqtt",
+    "demo_ntp",
 
     "ttgo_display_graphics",
     "ttgo_display_text",

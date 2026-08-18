@@ -83,6 +83,7 @@ demo_factory
 demo_png
 demo_wifi
 demo_mqtt
+demo_ntp
 demo_sd
 demo_sd_usb
 demo_rgb
@@ -124,6 +125,18 @@ Example:
 
 Do not commit real credentials.
 
+The `demo_ntp` environment uses the same Wi-Fi secrets and proves the complete
+Wi-Fi + NTP + display path:
+
+```powershell
+pio run -e demo_ntp
+pio run -e demo_ntp -t upload
+```
+
+It configures Pacific time with the POSIX timezone string
+`PST8PDT,M3.2.0,M11.1.0`, waits for synchronization, and then displays the
+local time, date, NTP state, and Wi-Fi state.
+
 ## 6. Build the Home Dashboard
 
 ```powershell
@@ -143,6 +156,10 @@ pio device monitor -e app_home_dashboard
 ```
 
 Normal Home Dashboard serial logging is provided by `Logger` through `printf()`.
+
+The Home Dashboard initializes `TimeService` once at application scope after
+starting Wi-Fi. `SystemStatusPage` consumes that shared service to display the
+current local date and time.
 
 ## 7. BOOT and RESET Buttons on the Waveshare Board
 

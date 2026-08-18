@@ -16,6 +16,7 @@ Home Dashboard / Demos
         ├── Page modules
         ├── NetworkService
         ├── MQTTService
+        ├── TimeService
         ├── SD_Card
         ├── PNG_Image
         ├── Buttons
@@ -149,6 +150,17 @@ Call `MQTTService::loop()` regularly.
 
 The Home Dashboard has one central MQTT router in `main.cpp`. It dispatches topic payloads to page-specific handlers.
 
+### TimeService
+
+Owns NTP setup, synchronization state, and local date/time formatting. Call
+`TimeService::begin(...)` once after starting Wi-Fi. It delegates timezone and
+NTP configuration to ESP32 `configTzTime(...)`; synchronization continues in
+the background, so `TimeService` has no required `loop()`.
+
+The Home Dashboard initializes `TimeService` globally in `main.cpp`, using
+`PST8PDT,M3.2.0,M11.1.0` for Pacific time. `SystemStatusPage` consumes the
+service and displays its current date and time.
+
 ## Supporting Hardware Libraries
 
 ### Buttons
@@ -184,6 +196,7 @@ Examples:
 - `demo_display_widgets`
 - `demo_png`
 - `demo_sd_usb`
+- `demo_ntp` — proves Wi-Fi + NTP synchronization + display output
 
 Demos are intentionally independent PlatformIO environments.
 
@@ -215,6 +228,7 @@ src/apps/home_dashboard/pages/
 - shared footer
 - network registration
 - MQTT connection configuration
+- NTP/local-time configuration
 - MQTT topic subscription
 - MQTT topic routing
 

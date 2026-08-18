@@ -12,6 +12,7 @@
 #include "NetworkService.h"
 #include "MQTTService.h"
 #include "SD_Card.h"
+#include "TimeService.h"
 
 #include "secrets.h"
 
@@ -80,16 +81,16 @@ namespace
      */
     constexpr DashboardPage ROTATION_PAGES[] =
         {
-            // DashboardPage::HomeAssistant,
-            // DashboardPage::FlightRadar,
-            // DashboardPage::PiHole,
-            // DashboardPage::Test,
-            // DashboardPage::SystemStatus,
-            // DashboardPage::SystemMonitor,
-            // DashboardPage::Network,
-            // DashboardPage::DeathStar,
-            // DashboardPage::SDCard,
-            // DashboardPage::Image,
+            DashboardPage::HomeAssistant,
+            DashboardPage::FlightRadar,
+            DashboardPage::PiHole,
+            DashboardPage::Test,
+            DashboardPage::SystemStatus,
+            DashboardPage::SystemMonitor,
+            DashboardPage::Network,
+            DashboardPage::DeathStar,
+            DashboardPage::SDCard,
+            DashboardPage::Image,
             DashboardPage::DeviceOverview,
     };
 
@@ -367,6 +368,9 @@ void setup()
 #endif
 
     NetworkService::begin();
+
+    TimeService::begin(
+        "PST8PDT,M3.2.0,M11.1.0");
 
     MQTTService::begin(
         MQTT_BROKER,

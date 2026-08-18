@@ -158,6 +158,24 @@ docs/MQTT-Protocol.md
 
 ---
 
+# NTP / Local Time
+
+Status: Working
+
+Preferred application service:
+
+```text
+lib/TimeService
+```
+
+`TimeService::begin(...)` uses ESP32 `configTzTime(...)` to configure a POSIX
+timezone and NTP servers. Synchronization proceeds in the background, so the
+service has no required `loop()`. The Home Dashboard initializes it globally
+with Pacific timezone `PST8PDT,M3.2.0,M11.1.0`, and `SystemStatusPage` displays
+the resulting local date and time.
+
+---
+
 # Logger
 
 Status: Working
@@ -223,6 +241,7 @@ With the USB connector at the top and display facing you:
 | Windows SD USB maintenance | ✅ |
 | NetworkService / Wi-Fi | ✅ |
 | MQTTService / MQTT | ✅ |
+| TimeService / NTP | ✅ |
 | RGB LED | ✅ |
 | BOOT button events | ✅ |
 | BLE | Not used by current framework application |
@@ -242,6 +261,7 @@ With the USB connector at the top and display facing you:
 | `demo_png` | PNG rendering from microSD | ✅ |
 | `demo_wifi` | Wi-Fi connectivity | ✅ |
 | `demo_mqtt` | MQTT connectivity | ✅ |
+| `demo_ntp` | Wi-Fi + NTP synchronization + display output | ✅ |
 | `demo_sd` | SD-card access | ✅ |
 | `demo_sd_usb` | Windows USB Mass Storage access to microSD | ✅ |
 | `demo_rgb` | RGB LED control | ✅ |

@@ -10,6 +10,17 @@ This project follows Semantic Versioning (SemVer):
 
 ---
 
+## [0.2.12] - 2026-08-17
+
+### Added
+
+- Reusable `TimeService` for background NTP synchronization and local date/time formatting.
+- `demo_ntp` to verify Wi-Fi, NTP synchronization, and display output.
+
+### Changed
+
+- Integrated globally initialized date/time into the Home Dashboard `SystemStatusPage`.
+
 ## [0.2.0] - 2026-08-08
 
 ### Added

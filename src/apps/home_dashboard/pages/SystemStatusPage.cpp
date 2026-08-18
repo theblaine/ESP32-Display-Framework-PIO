@@ -8,6 +8,7 @@
 
 #include "NetworkService.h"
 #include "MQTTService.h"
+#include "TimeService.h"
 
 namespace
 {
@@ -34,6 +35,9 @@ namespace SystemStatusPage
         const bool mqttConnected =
             MQTTService::isConnected();
 
+        const bool timeSynced =
+            TimeService::isSynced();
+
         g_systemStatusData.wifi =
             wifiConnected
                 ? "Connected"
@@ -43,6 +47,12 @@ namespace SystemStatusPage
             mqttConnected
                 ? "Connected"
                 : "Offline";
+
+        const String currentTime =
+            TimeService::timeString();
+
+        const String currentDate =
+            TimeService::dateString();
 
         const uint16_t wifiColor =
             wifiConnected
@@ -54,28 +64,47 @@ namespace SystemStatusPage
                 ? Color::Green
                 : Color::Red;
 
+        const uint16_t timeColor =
+            timeSynced
+                ? Color::Cyan
+                : Color::Yellow;
+
         const Display_TableRow rows[] =
             {
                 {"CPU",
                  g_systemStatusData.cpu.c_str(),
                  Color::Cyan},
+
                 {"Memory",
                  g_systemStatusData.memory.c_str(),
                  Color::Cyan},
+
                 {"Disk",
                  g_systemStatusData.disk.c_str(),
                  Color::Yellow},
+
                 {"Uptime",
                  g_systemStatusData.uptime.c_str(),
                  Color::White},
+
+                {"Time",
+                 currentTime.c_str(),
+                 timeColor},
+
+                {"Date",
+                 currentDate.c_str(),
+                 timeColor},
+
                 {"Wi-Fi",
                  g_systemStatusData.wifi.c_str(),
                  wifiColor},
+
                 {"MQTT",
                  g_systemStatusData.mqtt.c_str(),
                  mqttColor}};
 
-        Display_FillScreen(Color::Black);
+        Display_FillScreen(
+            Color::Black);
 
         Display_DrawHeaderBar(
             "System Status",
@@ -89,7 +118,7 @@ namespace SystemStatusPage
             8,
             48,
             Display::width() - 16,
-            40,
+            30,
             rows,
             sizeof(rows) / sizeof(rows[0]),
             Color::Black,

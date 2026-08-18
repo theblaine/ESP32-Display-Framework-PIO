@@ -39,6 +39,7 @@ Current known hardware:
 | BOOT button | GPIO 0 |
 | Wi-Fi | working |
 | MQTT | working |
+| NTP/local time | working via `TimeService` and `demo_ntp` |
 | PNG from SD | working |
 | Windows SD USB maintenance | working via `demo_sd_usb` |
 
@@ -143,6 +144,7 @@ Check individually:
 - SD interface
 - Wi-Fi
 - MQTT
+- NTP/local time
 - USB capabilities
 
 ### Stage 5: Application Support

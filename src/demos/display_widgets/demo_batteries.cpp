@@ -21,47 +21,56 @@ void DrawBatteriesDemo()
 {
     Display_FillScreen(Color::Black);
 
+    const bool compactLayout = Display::height() < 300;
+    const int16_t headerHeight = compactLayout ? 28 : 30;
+    const int16_t footerHeight = 28;
+    const int16_t rowStartY = compactLayout ? 34 : 46;
+    const int16_t rowHeight = 28;
+    const int16_t rowSpacing = compactLayout ? 36 : 50;
+    const int16_t labelWidth = compactLayout ? 48 : 52;
+    const int16_t batteryX = compactLayout ? 56 : 62;
+
     Display_DrawHeaderBar(
         "BATTERY WIDGETS",
         Color::Blue,
         Color::Cyan,
         Color::White,
         1,
-        30);
+        headerHeight);
 
     struct BatteryRow
     {
-        int16_t y;
         uint8_t percent;
         uint16_t fillColor;
         const char* label;
     };
 
     constexpr BatteryRow Rows[] = {
-        {46,  100, Color::Green,  "FULL"},
-        {96,   75, Color::Green,  "GOOD"},
-        {146,  50, Color::Yellow, "HALF"},
-        {196,  25, Color::Yellow, "LOW"},
-        {246,   5, Color::Red,    "CRITICAL"}
+        {100, Color::Green,  "FULL"},
+        { 75, Color::Green,  "GOOD"},
+        { 50, Color::Yellow, "HALF"},
+        { 25, Color::Yellow, "LOW"},
+        {  5, Color::Red,    "CRITICAL"}
     };
 
+    int16_t y = rowStartY;
     for (const BatteryRow& row : Rows)
     {
         Display_DrawLabel(
             8,
-            row.y,
-            52,
-            28,
+            y,
+            labelWidth,
+            rowHeight,
             row.label,
             Color::White,
             Color::Black,
             1);
 
         Display_DrawBattery(
-            62,
-            row.y,
-            102,
-            28,
+            batteryX,
+            y,
+            Display::width() - batteryX - 8,
+            rowHeight,
             row.percent,
             row.fillColor,
             Color::Black,
@@ -70,6 +79,8 @@ void DrawBatteriesDemo()
             true,
             Color::White,
             1);
+
+        y += rowSpacing;
     }
 
     Display_DrawFooterBar(
@@ -78,5 +89,5 @@ void DrawBatteriesDemo()
         Color::Cyan,
         Color::White,
         1,
-        28);
+        footerHeight);
 }

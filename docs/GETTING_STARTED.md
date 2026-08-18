@@ -89,7 +89,17 @@ demo_sd_usb
 demo_rgb
 ```
 
-Selected TTGO environments are documented in `BOARD_SUPPORT.md`.
+Supported TTGO environments include graphics, text, console, calibration, and
+the shared widget demo. To build the resolution-aware widget pages for TTGO:
+
+```powershell
+pio run -e ttgo_display_widgets
+```
+
+`demo_display_widgets` and `ttgo_display_widgets` compile the same source under
+`src/demos/display_widgets/`. Compact layouts use `Display::width()` and
+`Display::height()`; there is no separate TTGO widget implementation. See
+`BOARD_SUPPORT.md` for the complete support boundary.
 
 ## 5. Configure Wi-Fi for the Home Dashboard
 

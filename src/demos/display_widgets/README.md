@@ -2,11 +2,18 @@
 
 This PlatformIO environment demonstrates every reusable component currently provided by `Display_Widgets`.
 
-Build environment:
+Build environments:
 
 ```text
-demo_display_widgets
+demo_display_widgets  (Waveshare ESP32-S3-LCD-1.47)
+ttgo_display_widgets  (TTGO T-Display V1.1)
 ```
+
+Both environments compile this same source directory and use the shared
+`Display_Widgets` implementation. Pages choose compact layout values from
+`Display::width()` and `Display::height()` when the display is shorter; no
+TTGO-specific widget implementations or duplicate demo pages are maintained.
+The compact layouts have been visually verified on physical TTGO hardware.
 
 Build and upload from a terminal:
 
@@ -15,6 +22,8 @@ pio run -e demo_display_widgets
 pio run -e demo_display_widgets -t upload
 pio device monitor -b 115200
 ```
+
+For TTGO, substitute `ttgo_display_widgets` in the build and upload commands.
 
 ## BOOT Button Controls
 

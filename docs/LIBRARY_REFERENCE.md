@@ -160,6 +160,11 @@ Header:
 #include "Display_Widgets.h"
 ```
 
+The widget implementation is shared across supported display boards. Both
+`demo_display_widgets` and `ttgo_display_widgets` compile the same demo source;
+the demos adapt positions, spacing, and sizes through `Display::width()` and
+`Display::height()` instead of maintaining TTGO-specific widgets.
+
 Purpose: reusable application-independent UI components.
 
 Current widgets include:
@@ -240,13 +245,17 @@ Display_DrawTable(
     1);
 ```
 
-The interactive reference is:
+The interactive reference environments are:
 
 ```text
 demo_display_widgets
+ttgo_display_widgets
 ```
 
-and its README is:
+Physical TTGO testing verified that the shared widgets render correctly with
+the resolution-aware compact demo layouts.
+
+Their shared README is:
 
 ```text
 src/demos/display_widgets/README.md

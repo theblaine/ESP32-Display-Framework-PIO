@@ -10,6 +10,16 @@ This project follows Semantic Versioning (SemVer):
 
 ---
 
+## [0.2.13] - 2026-08-17
+
+### Added
+
+- TTGO T-Display support for the shared `display_widgets` demo through the `ttgo_display_widgets` environment.
+
+### Changed
+
+- Made widget-demo layouts resolution-aware using display geometry while retaining one shared `Display_Widgets` implementation for Waveshare and TTGO.
+
 ## [0.2.12] - 2026-08-17
 
 ### Added

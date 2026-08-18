@@ -1,6 +1,6 @@
 # ESP32 Display Framework for PlatformIO
 
-**Current version: v0.2.12**
+**Current version: v0.2.13**
 
 A reusable PlatformIO framework for ESP32 display projects. The project separates board-specific display configuration, reusable drawing/UI libraries, hardware services, focused demos, and modular applications so that future projects can reuse only the pieces they need.
 
@@ -46,6 +46,9 @@ Current TTGO environments:
 - `ttgo_display_text`
 - `ttgo_display_console`
 - `ttgo_display_calibration`
+- `ttgo_display_widgets`
+
+`Display_Widgets` is shared across both boards. The Waveshare and TTGO widget environments compile the same demo source; its pages select compact spacing and sizing from `Display::width()` and `Display::height()` rather than using TTGO-specific widget implementations. The widget demo has been physically verified on TTGO hardware.
 
 See [`docs/BOARD_SUPPORT.md`](docs/BOARD_SUPPORT.md).
 
@@ -166,6 +169,8 @@ The repository includes independent demos so capabilities can be tested without 
 | `demo_rgb` | Addressable RGB LED |
 
 See `platformio.ini` for the authoritative environment list.
+
+The TTGO equivalent of `demo_display_widgets` is `ttgo_display_widgets`; both environments use `src/demos/display_widgets/`.
 
 ## Configuration and Secrets
 

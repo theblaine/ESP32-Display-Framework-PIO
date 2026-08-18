@@ -49,7 +49,7 @@ See `Board.md` for pin-level notes.
 
 ## TTGO T-Display V1.1
 
-Status: **Partial / display-focused**
+Status: **Partial / display-focused, physically verified**
 
 PlatformIO board:
 
@@ -72,7 +72,14 @@ ttgo_display_graphics
 ttgo_display_text
 ttgo_display_console
 ttgo_display_calibration
+ttgo_display_widgets
 ```
+
+The widget environment uses the same `src/demos/display_widgets/` source and
+shared `Display_Widgets` implementation as Waveshare. Demo layouts select
+compact positions, spacing, and sizes from `Display::width()` and
+`Display::height()`; no TTGO-specific widget implementation exists. Physical
+TTGO testing verified that the widgets render correctly with these layouts.
 
 Do not assume the Waveshare Home Dashboard hardware features exist on TTGO.
 
@@ -131,7 +138,7 @@ Do not start with the full Home Dashboard.
 
 ### Stage 3: Verify Widgets
 
-Build `demo_display_widgets`.
+Build the board's widget-demo environment (for TTGO, `ttgo_display_widgets`).
 
 Look for layout assumptions tied to the Waveshare 172×320 screen.
 

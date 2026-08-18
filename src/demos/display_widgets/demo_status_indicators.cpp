@@ -11,7 +11,6 @@
  *     Display_DrawPanel()
  ******************************************************************************/
 
-#include "Display.h"
 #include "Display_GFX.h"
 #include "Display_Widgets.h"
 #include "Display.h"
@@ -22,21 +21,29 @@ void DrawStatusIndicatorsDemo()
 {
     Display_FillScreen(Color::Black);
 
+    const bool compactLayout = Display::height() < 300;
+    const int16_t headerHeight = compactLayout ? 28 : 30;
+    const int16_t footerHeight = 28;
+    const int16_t rowStartY = compactLayout ? 34 : 45;
+    const int16_t rowHeight = 42;
+    const int16_t rowSpacing = compactLayout ? 44 : 55;
+    const int16_t indicatorInset = 3;
+
     Display_DrawHeaderBar(
         "STATUS INDICATORS",
         Color::Blue,
         Color::Cyan,
         Color::White,
         1,
-        30);
+        headerHeight);
 
     // Circle marker without a marker border.
     Display_DrawPanel(
-        10, 45, Display::width() - 20, 42,
+        10, rowStartY, Display::width() - 20, rowHeight,
         Color::Black, Color::Green, 8);
 
     Display_DrawStatusIndicator(
-        14, 48, Display::width() - 28, 36,
+        14, rowStartY + indicatorInset, Display::width() - 28, rowHeight - (indicatorInset * 2),
         "ONLINE",
         Color::Green,
         Color::White,
@@ -46,11 +53,11 @@ void DrawStatusIndicatorsDemo()
 
     // Rounded-square marker with a border.
     Display_DrawPanel(
-        10, 100, Display::width() - 20, 42,
+        10, rowStartY + rowSpacing, Display::width() - 20, rowHeight,
         Color::Black, Color::Yellow, 8);
 
     Display_DrawStatusIndicator(
-        14, 103, Display::width() - 28, 36,
+        14, rowStartY + rowSpacing + indicatorInset, Display::width() - 28, rowHeight - (indicatorInset * 2),
         "WARNING",
         Color::Yellow,
         Color::White,
@@ -62,11 +69,11 @@ void DrawStatusIndicatorsDemo()
 
     // Square marker with a border.
     Display_DrawPanel(
-        10, 155, Display::width() - 20, 42,
+        10, rowStartY + (rowSpacing * 2), Display::width() - 20, rowHeight,
         Color::Black, Color::Red, 8);
 
     Display_DrawStatusIndicator(
-        14, 158, Display::width() - 28, 36,
+        14, rowStartY + (rowSpacing * 2) + indicatorInset, Display::width() - 28, rowHeight - (indicatorInset * 2),
         "OFFLINE",
         Color::Red,
         Color::White,
@@ -78,11 +85,11 @@ void DrawStatusIndicatorsDemo()
 
     // Another circular marker demonstrates a neutral/info state.
     Display_DrawPanel(
-        10, 210, Display::width() - 20, 42,
+        10, rowStartY + (rowSpacing * 3), Display::width() - 20, rowHeight,
         Color::Black, Color::Cyan, 8);
 
     Display_DrawStatusIndicator(
-        14, 213, Display::width() - 28, 36,
+        14, rowStartY + (rowSpacing * 3) + indicatorInset, Display::width() - 28, rowHeight - (indicatorInset * 2),
         "STANDBY",
         Color::Cyan,
         Color::White,
@@ -98,5 +105,5 @@ void DrawStatusIndicatorsDemo()
         Color::Cyan,
         Color::White,
         1,
-        28);
+        footerHeight);
 }

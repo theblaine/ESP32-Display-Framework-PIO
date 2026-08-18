@@ -10,7 +10,6 @@
  *     Shows the default bars and a customizable dashboard content area.
  ******************************************************************************/
 
-#include "Display.h"
 #include "Display_GFX.h"
 #include "Display_Widgets.h"
 #include "Display.h"
@@ -21,47 +20,54 @@ void DrawHeaderFooterBarsDemo()
 {
     Display_FillScreen(Color::Black);
 
+    const bool compactLayout = Display::height() < 300;
+    const int16_t headerHeight = compactLayout ? 28 : 34;
+    const int16_t footerHeight = 28;
+    const int16_t panelHeight = compactLayout ? 76 : 70;
+    const int16_t firstPanelY = compactLayout ? 34 : 55;
+    const int16_t secondPanelY = compactLayout ? 120 : 145;
+
     Display_DrawHeaderBar(
         "DASHBOARD",
         Color::Blue,
         Color::Cyan,
         Color::White,
         2,
-        34);
+        headerHeight);
 
     Display_DrawPanel(
         10,
-        55,
+        firstPanelY,
         Display::width() - 20,
-        70,
+        panelHeight,
         Color::Black,
         Color::Cyan,
         8);
 
     Display_DrawLabel(
         10,
-        55,
+        firstPanelY,
         Display::width() - 20,
-        70,
+        panelHeight,
         "CONTENT AREA",
         Color::Cyan,
         Color::Black,
-        2);
+        compactLayout ? 1 : 2);
 
     Display_DrawPanel(
         10,
-        145,
+        secondPanelY,
         Display::width() - 20,
-        70,
+        panelHeight,
         Color::Black,
         Color::White,
         8);
 
     Display_DrawLabel(
         10,
-        145,
+        secondPanelY,
         Display::width() - 20,
-        70,
+        panelHeight,
         "REUSABLE BARS",
         Color::White,
         Color::Black,
@@ -73,5 +79,5 @@ void DrawHeaderFooterBarsDemo()
         Color::Cyan,
         Color::White,
         1,
-        28);
+        footerHeight);
 }

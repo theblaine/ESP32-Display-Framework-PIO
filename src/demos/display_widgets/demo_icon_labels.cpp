@@ -15,13 +15,47 @@
 #include "Display.h"
 #include "Display_GFX.h"
 #include "Display_Widgets.h"
-#include "Display.h"
 
 #include "WidgetDemoPages.h"
 
 void DrawIconLabelsDemo()
 {
-    Display_FillScreen(Color::Black);
+    Display_FillScreen(
+        Color::Black);
+
+    const bool compactLayout =
+        Display::height() < 300;
+
+    const int16_t headerHeight =
+        compactLayout ? 28 : 30;
+
+    const int16_t footerHeight =
+        28;
+
+    const int16_t rowStartY =
+        compactLayout ? 34 : 42;
+
+    const int16_t rowHeight =
+        compactLayout ? 30 : 38;
+
+    const int16_t rowGap =
+        compactLayout ? 3 : 11;
+
+    const int16_t panelX =
+        compactLayout ? 6 : 10;
+
+    const int16_t panelWidth =
+        Display::width() -
+        (panelX * 2);
+
+    const int16_t iconLabelX =
+        panelX + 3;
+
+    const int16_t iconLabelWidth =
+        panelWidth - 6;
+
+    const int16_t iconSize =
+        compactLayout ? 18 : 24;
 
     Display_DrawHeaderBar(
         "ICON + LABEL",
@@ -29,47 +63,74 @@ void DrawIconLabelsDemo()
         Color::Cyan,
         Color::White,
         1,
-        30);
+        headerHeight);
 
     struct DemoRow
     {
-        int16_t y;
         Display_Icon icon;
-        const char* text;
+        const char *text;
         uint16_t color;
     };
 
-    constexpr DemoRow Rows[] = {
-        {42,  Display_Icon::Home,    "HOME",    Color::Cyan},
-        {91,  Display_Icon::Info,    "INFO",    Color::Blue},
-        {140, Display_Icon::Check,   "READY",   Color::Green},
-        {189, Display_Icon::Warning, "WARNING", Color::Yellow},
-        {238, Display_Icon::Power,   "POWER",   Color::Red}
-    };
+    constexpr DemoRow Rows[] =
+        {
+            {
+                Display_Icon::Home,
+                "HOME",
+                Color::Cyan
+            },
+            {
+                Display_Icon::Info,
+                "INFO",
+                Color::Blue
+            },
+            {
+                Display_Icon::Check,
+                "READY",
+                Color::Green
+            },
+            {
+                Display_Icon::Warning,
+                "WARNING",
+                Color::Yellow
+            },
+            {
+                Display_Icon::Power,
+                "POWER",
+                Color::Red
+            }
+        };
 
-    for (const DemoRow& row : Rows)
+    int16_t y =
+        rowStartY;
+
+    for (const DemoRow &row : Rows)
     {
         Display_DrawPanel(
-            10,
-            row.y,
-            Display::width() - 20,
-            38,
+            panelX,
+            y,
+            panelWidth,
+            rowHeight,
             Color::Black,
             row.color,
             7);
 
         Display_DrawIconLabel(
-            13,
-            row.y + 3,
-            Display::width() - 26,
-            32,
+            iconLabelX,
+            y + 3,
+            iconLabelWidth,
+            rowHeight - 6,
             row.icon,
             row.text,
             row.color,
             Color::White,
             Color::Black,
             2,
-            24);
+            iconSize);
+
+        y +=
+            rowHeight +
+            rowGap;
     }
 
     Display_DrawFooterBar(
@@ -78,5 +139,5 @@ void DrawIconLabelsDemo()
         Color::Cyan,
         Color::White,
         1,
-        28);
+        footerHeight);
 }

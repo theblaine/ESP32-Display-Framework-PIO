@@ -132,6 +132,12 @@ Examples include:
 
 The widget library intentionally avoids page-specific business logic.
 
+`Display_Widgets` is board-independent and shared by Waveshare and TTGO. The
+two widget-demo environments compile the same files from
+`src/demos/display_widgets/`; those demo pages use `Display::width()` and
+`Display::height()` to select compact geometry where needed. TTGO-specific
+widget implementations were intentionally not introduced.
+
 For example, `Display_DrawSignalMeter()` accepts a generic level. `NetworkPage` owns the Wi-Fi RSSI thresholds used to convert dBm to a 0–4 signal level.
 
 ## Services
@@ -194,6 +200,7 @@ Demos should answer a focused question:
 Examples:
 
 - `demo_display_widgets`
+- `ttgo_display_widgets` — the same widget-demo source with compact layouts selected from display geometry
 - `demo_png`
 - `demo_sd_usb`
 - `demo_ntp` — proves Wi-Fi + NTP synchronization + display output

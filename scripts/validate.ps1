@@ -26,7 +26,8 @@ $environments = @(
     "ttgo_display_graphics",
     "ttgo_display_text",
     "ttgo_display_console",
-    "ttgo_display_calibration"
+    "ttgo_display_calibration",
+    "ttgo_display_widgets"
 )
 
 Write-Host ""

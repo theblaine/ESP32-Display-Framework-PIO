@@ -1,34 +1,30 @@
 #include <Arduino.h>
-#include <WiFi.h>
-#include <WiFiMulti.h>
-#include <PubSubClient.h>
 #include <ArduinoJson.h>
 
 #include "Logger.h"
 #include "Display.h"
 #include "Display_GFX.h"
 #include "Display_Widgets.h"
+
+#include "NetworkService.h"
+#include "MQTTService.h"
+
 #include "secrets.h"
 
 namespace
 {
-    constexpr unsigned long WIFI_SERVICE_INTERVAL_MS = 2000;
-    constexpr unsigned long MQTT_RETRY_INTERVAL_MS = 5000;
-    constexpr uint32_t WIFI_CONNECT_TIMEOUT_MS = 10000;
-
     constexpr const char *MQTT_BROKER = "10.0.0.50";
     constexpr uint16_t MQTT_PORT = 1883;
-    constexpr const char *MQTT_CLIENT_ID = "waveshare-display-demo";
+
+    // Generic client name because this demo now targets multiple boards.
+    constexpr const char *MQTT_CLIENT_ID = "display-mqtt-demo";
+
     constexpr const char *MQTT_TOPIC = "test/display";
 
-    WiFiMulti g_wifiMulti;
-    WiFiClient g_wifiClient;
-    PubSubClient g_mqttClient(g_wifiClient);
-
-    unsigned long g_lastWiFiServiceTime = 0;
-    unsigned long g_lastMqttAttemptTime = 0;
-
     String g_lastMqttMessage = "Waiting...";
+
+    bool g_wasWiFiConnected = false;
+    bool g_wasMqttConnected = false;
 
     void showStatus(
         const char *title,
@@ -43,7 +39,8 @@ namespace
             detailText);
     }
 
-    uint16_t statusColorFromText(const char *colorText)
+    uint16_t statusColorFromText(
+        const char *colorText)
     {
         if (colorText == nullptr)
         {
@@ -84,7 +81,6 @@ namespace
     }
 
     void processMqttMessage(
-        const char *topic,
         const char *message)
     {
         if (message == nullptr)
@@ -95,8 +91,14 @@ namespace
         JsonDocument document;
 
         const DeserializationError error =
-            deserializeJson(document, message);
+            deserializeJson(
+                document,
+                message);
 
+        /*
+         * Plain-text payloads are also valid for this demo.
+         * If the payload is not JSON, display it directly.
+         */
         if (error)
         {
             LOGWF(
@@ -105,15 +107,16 @@ namespace
 
             g_lastMqttMessage = message;
 
-Display_StatusScreenData screen =
-{
-    "MQTT",
-    "Connected",
-    g_lastMqttMessage,
-    Color::Green
-};
+            Display_StatusScreenData screen =
+            {
+                "MQTT",
+                "Connected",
+                g_lastMqttMessage,
+                Color::Green
+            };
 
             Display_ShowStatusScreen(screen);
+
             return;
         }
 
@@ -149,168 +152,106 @@ Display_StatusScreenData screen =
         Display_ShowStatusScreen(screen);
     }
 
-    void mqttCallback(
-        char *topic,
-        byte *payload,
-        unsigned int length)
+    /*
+     * MQTTService converts the PubSubClient payload into a normal
+     * null-terminated string before calling this function.
+     */
+    void handleMqttMessage(
+        const char *topic,
+        const char *payload)
     {
-        String receivedMessage;
-        receivedMessage.reserve(length);
-
-        for (unsigned int index = 0; index < length; index++)
-        {
-            receivedMessage +=
-                static_cast<char>(payload[index]);
-        }
-
         LOGF(
-            "MQTT [%s] %s",
-            topic,
-            receivedMessage.c_str());
+            "Demo received MQTT topic: %s",
+            topic);
 
-        processMqttMessage(
-            topic,
-            receivedMessage.c_str());
+        processMqttMessage(payload);
     }
 
     void addConfiguredNetworks()
     {
-        g_wifiMulti.addAP(
+        NetworkService::addNetwork(
             WIFI_SSID_1,
             WIFI_PASSWORD_1);
 
 #ifdef WIFI_SSID_2
-        g_wifiMulti.addAP(
+        NetworkService::addNetwork(
             WIFI_SSID_2,
             WIFI_PASSWORD_2);
 #endif
 
 #ifdef WIFI_SSID_3
-        g_wifiMulti.addAP(
+        NetworkService::addNetwork(
             WIFI_SSID_3,
             WIFI_PASSWORD_3);
 #endif
     }
 
-    bool serviceWiFi()
+    /*
+     * Only redraw connection status when something changes.
+     * This prevents normal service loops from overwriting an MQTT
+     * message currently being displayed.
+     */
+    void updateConnectionStatus()
     {
-        const unsigned long currentTime = millis();
+        const bool wifiConnected =
+            NetworkService::isConnected();
 
-        if (WiFi.status() == WL_CONNECTED)
+        const bool mqttConnected =
+            MQTTService::isConnected();
+
+        if (wifiConnected != g_wasWiFiConnected)
         {
-            return true;
-        }
+            g_wasWiFiConnected =
+                wifiConnected;
 
-        if (currentTime - g_lastWiFiServiceTime <
-            WIFI_SERVICE_INTERVAL_MS)
-        {
-            return false;
-        }
+            if (!wifiConnected)
+            {
+                showStatus(
+                    "WiFi",
+                    "Connecting",
+                    Color::Yellow);
 
-        g_lastWiFiServiceTime = currentTime;
-
-        showStatus(
-            "WiFi",
-            "Connecting",
-            Color::Yellow);
-
-        const wl_status_t status =
-            static_cast<wl_status_t>(
-                g_wifiMulti.run(
-                    WIFI_CONNECT_TIMEOUT_MS));
-
-        if (status == WL_CONNECTED)
-        {
-            const String ipAddress =
-                WiFi.localIP().toString();
+                g_wasMqttConnected = false;
+                return;
+            }
 
             LOGF(
-                "Wi-Fi connected | SSID: %s | IP: %s",
-                WiFi.SSID().c_str(),
-                ipAddress.c_str());
-
-            showStatus(
-                "WiFi",
-                "Connected",
-                Color::Green,
-                ipAddress.c_str());
-
-            return true;
-        }
-
-        return false;
-    }
-
-    void serviceMqtt()
-    {
-        if (WiFi.status() != WL_CONNECTED)
-        {
-            return;
-        }
-
-        if (g_mqttClient.connected())
-        {
-            g_mqttClient.loop();
-            return;
-        }
-
-        const unsigned long currentTime = millis();
-
-        if (currentTime - g_lastMqttAttemptTime <
-            MQTT_RETRY_INTERVAL_MS)
-        {
-            return;
-        }
-
-        g_lastMqttAttemptTime = currentTime;
-
-        LOGF(
-            "Connecting to MQTT broker %s:%u",
-            MQTT_BROKER,
-            MQTT_PORT);
-
-        showStatus(
-            "MQTT",
-            "Connecting",
-            Color::Yellow,
-            MQTT_BROKER);
-
-        if (g_mqttClient.connect(MQTT_CLIENT_ID))
-        {
-            LOG("MQTT connected.");
-
-            if (g_mqttClient.subscribe(MQTT_TOPIC))
-            {
-                LOGF(
-                    "Subscribed to %s",
-                    MQTT_TOPIC);
-            }
-            else
-            {
-                LOGW("Subscription failed.");
-            }
-
-Display_StatusScreenData screen =
-{
-    "MQTT",
-    "Connected",
-    g_lastMqttMessage,
-    Color::Green
-};
-
-            Display_ShowStatusScreen(screen);
-        }
-        else
-        {
-            LOGWF(
-                "MQTT connection failed. State: %d",
-                g_mqttClient.state());
+                "Demo Wi-Fi ready | SSID: %s | IP: %s",
+                NetworkService::ssid().c_str(),
+                NetworkService::ipAddress().c_str());
 
             showStatus(
                 "MQTT",
-                "Failed",
-                Color::Red,
+                "Connecting",
+                Color::Yellow,
                 MQTT_BROKER);
+        }
+
+        if (mqttConnected != g_wasMqttConnected)
+        {
+            g_wasMqttConnected =
+                mqttConnected;
+
+            if (mqttConnected)
+            {
+                Display_StatusScreenData screen =
+                {
+                    "MQTT",
+                    "Connected",
+                    g_lastMqttMessage,
+                    Color::Green
+                };
+
+                Display_ShowStatusScreen(screen);
+            }
+            else if (wifiConnected)
+            {
+                showStatus(
+                    "MQTT",
+                    "Connecting",
+                    Color::Yellow,
+                    MQTT_BROKER);
+            }
         }
     }
 }
@@ -322,23 +263,33 @@ void setup()
     Logger::begin();
 
     LOG("=====================================");
-    LOG(" ESP32-S3 MQTT JSON Demo");
+    LOG(" MQTT Service Demo");
     LOG("=====================================");
 
     Display::begin();
 
-    WiFi.mode(WIFI_STA);
-    WiFi.persistent(false);
-    WiFi.setAutoReconnect(true);
-
+    /*
+     * Candidate networks belong to NetworkService.
+     * The same application code is used on every supported board.
+     */
     addConfiguredNetworks();
 
-    g_mqttClient.setServer(
-        MQTT_BROKER,
-        MQTT_PORT);
+    NetworkService::begin();
 
-    g_mqttClient.setCallback(
-        mqttCallback);
+    MQTTService::begin(
+        MQTT_BROKER,
+        MQTT_PORT,
+        MQTT_CLIENT_ID);
+
+    MQTTService::setMessageCallback(
+        handleMqttMessage);
+
+    /*
+     * MQTTService remembers this subscription even before the
+     * broker is connected and automatically re-subscribes later.
+     */
+    MQTTService::subscribe(
+        MQTT_TOPIC);
 
     showStatus(
         "WiFi",
@@ -348,8 +299,10 @@ void setup()
 
 void loop()
 {
-    serviceWiFi();
-    serviceMqtt();
+    NetworkService::loop();
+    MQTTService::loop();
+
+    updateConnectionStatus();
 
     delay(10);
 }

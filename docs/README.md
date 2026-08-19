@@ -8,8 +8,8 @@ Recommended reading order:
 4. [Creating Home Dashboard Pages](CREATING_PAGES.md)
 5. [Home Dashboard MQTT Protocol](MQTT-Protocol.md)
 6. [SD Card Guide](SD_CARD_GUIDE.md)
-7. [Board Support](BOARD_SUPPORT.md)
-8. [Waveshare Board Notes](Board.md)
+7. [Board Support](BOARD_SUPPORT.md) — Waveshare and TTGO capability matrix
+8. [Waveshare Board Notes](Board.md) — Waveshare-specific hardware details
 
 Additional repository documentation:
 

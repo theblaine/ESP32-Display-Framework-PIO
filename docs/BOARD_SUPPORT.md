@@ -73,6 +73,9 @@ ttgo_display_text
 ttgo_display_console
 ttgo_display_calibration
 ttgo_display_widgets
+ttgo_wifi
+ttgo_mqtt
+ttgo_ntp
 ```
 
 The widget environment uses the same `src/demos/display_widgets/` source and
@@ -80,6 +83,16 @@ shared `Display_Widgets` implementation as Waveshare. Demo layouts select
 compact positions, spacing, and sizes from `Display::width()` and
 `Display::height()`; no TTGO-specific widget implementation exists. Physical
 TTGO testing verified that the widgets render correctly with these layouts.
+
+Physical testing also verified Wi-Fi connectivity, MQTT plain-text/JSON
+handling, and NTP synchronization through `TimeService`. The MQTT demo uses
+`WiFiMulti` and `PubSubClient` directly, so it does not prove the separate
+`MQTTService` abstraction.
+
+TTGO remains display/service-demo focused. Its current configuration has a
+135×240 ST7789 display, 4 MB flash, and no configured PSRAM. The Waveshare SD,
+RGB LED, button, PNG, native-USB maintenance, and full Home Dashboard paths
+have not been claimed as TTGO-supported.
 
 Do not assume the Waveshare Home Dashboard hardware features exist on TTGO.
 

@@ -165,6 +165,10 @@ The widget implementation is shared across supported display boards. Both
 the demos adapt positions, spacing, and sizes through `Display::width()` and
 `Display::height()` instead of maintaining TTGO-specific widgets.
 
+Pages may choose different geometry without changing widget behavior. On a
+narrow display, reduce margins and gaps first; if text still cannot fit, a
+shorter label is usually preferable to an excessively small font.
+
 Purpose: reusable application-independent UI components.
 
 Current widgets include:
@@ -244,6 +248,10 @@ Display_DrawTable(
     Color::Cyan,
     1);
 ```
+
+The label-column width is configurable on each `Display_DrawTable()` call.
+Choose it for that page's labels, values, and current display width; different
+pages and compact layouts do not need to use the same column width.
 
 The interactive reference environments are:
 
@@ -379,6 +387,10 @@ MQTTService::publish(topic, payload);
 
 Subscriptions registered with the service are automatically re-subscribed when the broker connection is restored.
 
+The current standalone `demo_mqtt`/`ttgo_mqtt` source uses `WiFiMulti` and
+`PubSubClient` directly. Those demos validate MQTT and JSON behavior, but they
+are not a validation of the framework `MQTTService` wrapper.
+
 The callback signature is:
 
 ```cpp
@@ -426,6 +438,9 @@ pending. `now()` returns the current `time_t` system-clock value.
 The Home Dashboard initializes the service globally in `main.cpp`, and
 `SystemStatusPage` reads it. The `demo_ntp` environment is the focused hardware
 test for Wi-Fi + NTP + display output.
+
+The same NTP/`TimeService` path has been physically validated through
+`ttgo_ntp` on TTGO T-Display V1.1 hardware.
 
 ## Buttons
 

@@ -10,6 +10,17 @@ This project follows Semantic Versioning (SemVer):
 
 ---
 
+## [0.2.14] - 2026-08-18
+
+### Added
+
+- Physically validated TTGO T-Display environments for graphics, text, console, calibration, widgets, Wi-Fi, MQTT, and NTP/`TimeService`.
+
+### Changed
+
+- Expanded TTGO demo coverage for Wi-Fi, MQTT, and NTP.
+- Refined resolution-aware demo and status-screen layouts while retaining the shared `Display` and `Display_Widgets` implementations.
+
 ## [0.2.13] - 2026-08-17
 
 ### Added

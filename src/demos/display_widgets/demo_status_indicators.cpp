@@ -63,7 +63,7 @@ void DrawStatusIndicatorsDemo()
         Color::White,
         Color::Black,
         Display_StatusMarkerShape::RoundedSquare,
-        1,
+        2,
         true,
         Color::White);
 
@@ -95,7 +95,7 @@ void DrawStatusIndicatorsDemo()
         Color::White,
         Color::Black,
         Display_StatusMarkerShape::Circle,
-        1,
+        2,
         true,
         Color::White);
 

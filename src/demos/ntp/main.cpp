@@ -21,6 +21,41 @@ namespace
         Display_FillScreen(
             Color::Black);
 
+        const bool compactLayout =
+            Display::height() < 300;
+
+        // Compact screens keep the original content and text sizes, using
+        // tighter vertical placement instead of a separate board-specific UI.
+
+        const int16_t timeLabelY =
+            compactLayout ? 46 : 58;
+
+        const int16_t timeY =
+            compactLayout ? 66 : 82;
+
+        const int16_t dateLabelY =
+            compactLayout ? 104 : 132;
+
+        const int16_t dateY =
+            compactLayout ? 124 : 156;
+
+        const int16_t ntpLabelY =
+            compactLayout ? 158 : 205;
+
+        const int16_t ntpIndicatorY =
+            compactLayout ? 176 : 222;
+
+        const int16_t ntpIndicatorX =
+            compactLayout ? 8 : 12;
+
+        const int16_t ntpIndicatorWidth =
+            compactLayout
+                ? Display::width() - 16
+                : 148;
+
+        const int16_t wifiY =
+            compactLayout ? 220 : 270;
+
         Display_DrawHeaderBar(
             "NTP Clock",
             Color::Blue,
@@ -31,7 +66,7 @@ namespace
 
         Display_DrawText(
             12,
-            58,
+            timeLabelY,
             "TIME",
             Color::White,
             Color::Black,
@@ -39,7 +74,7 @@ namespace
 
         Display_DrawTextCentered(
             Display::width() / 2,
-            82,
+            timeY,
             TimeService::timeString().c_str(),
             Color::Cyan,
             Color::Black,
@@ -47,7 +82,7 @@ namespace
 
         Display_DrawText(
             12,
-            132,
+            dateLabelY,
             "DATE",
             Color::White,
             Color::Black,
@@ -55,7 +90,7 @@ namespace
 
         Display_DrawTextCentered(
             Display::width() / 2,
-            156,
+            dateY,
             TimeService::dateString().c_str(),
             Color::Yellow,
             Color::Black,
@@ -63,16 +98,16 @@ namespace
 
         Display_DrawText(
             12,
-            205,
+            ntpLabelY,
             "NTP",
             Color::White,
             Color::Black,
             1);
 
         Display_DrawStatusIndicator(
-            12,
-            222,
-            148,
+            ntpIndicatorX,
+            ntpIndicatorY,
+            ntpIndicatorWidth,
             28,
             TimeService::isSynced()
                 ? "Synced"
@@ -87,15 +122,15 @@ namespace
 
         Display_DrawText(
             12,
-            270,
+            wifiY,
             "Wi-Fi",
             Color::White,
             Color::Black,
             1);
 
         Display_DrawText(
-            70,
-            270,
+            compactLayout ? 58 : 70,
+            wifiY,
             NetworkService::isConnected()
                 ? "Connected"
                 : "Offline",

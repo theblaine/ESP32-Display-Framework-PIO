@@ -15,6 +15,7 @@ Recommended development environment:
 Primary tested hardware:
 
 - Waveshare ESP32-S3-LCD-1.47
+- TTGO T-Display V1.1 for the supported display, Wi-Fi, MQTT, and NTP demos
 
 The project uses the Arduino framework through PlatformIO.
 
@@ -89,8 +90,20 @@ demo_sd_usb
 demo_rgb
 ```
 
-Supported TTGO environments include graphics, text, console, calibration, and
-the shared widget demo. To build the resolution-aware widget pages for TTGO:
+Supported TTGO environments are:
+
+```text
+ttgo_display_graphics
+ttgo_display_text
+ttgo_display_console
+ttgo_display_calibration
+ttgo_display_widgets
+ttgo_wifi
+ttgo_mqtt
+ttgo_ntp
+```
+
+For example, build the resolution-aware widget pages with:
 
 ```powershell
 pio run -e ttgo_display_widgets
@@ -100,6 +113,9 @@ pio run -e ttgo_display_widgets
 `src/demos/display_widgets/`. Compact layouts use `Display::width()` and
 `Display::height()`; there is no separate TTGO widget implementation. See
 `BOARD_SUPPORT.md` for the complete support boundary.
+
+The TTGO Wi-Fi, MQTT, and NTP environments require the same private
+`include/secrets.h` Wi-Fi configuration described below.
 
 ## 5. Configure Wi-Fi for the Home Dashboard
 
@@ -142,6 +158,8 @@ Wi-Fi + NTP + display path:
 pio run -e demo_ntp
 pio run -e demo_ntp -t upload
 ```
+
+Use `ttgo_ntp` for the physically validated TTGO equivalent.
 
 It configures Pacific time with the POSIX timezone string
 `PST8PDT,M3.2.0,M11.1.0`, waits for synchronization, and then displays the

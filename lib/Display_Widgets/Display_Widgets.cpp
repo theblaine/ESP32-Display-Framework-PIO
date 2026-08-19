@@ -1037,6 +1037,52 @@ void Display_ShowStatusScreen(
 
     Display_FillScreen(Color::Black);
 
+    const bool compactLayout =
+        DisplayConfig::Height < 300;
+
+    const int16_t statusX =
+        compactLayout ? 6 : 12;
+
+    const int16_t statusY =
+        compactLayout ? 72 : 60;
+
+    const int16_t statusWidth =
+        DisplayConfig::Width - (statusX * 2);
+
+    const int16_t statusHeight =
+        compactLayout ? 50 : 42;
+
+    const int16_t detailX =
+        compactLayout ? 4 : 10;
+
+    const int16_t detailY =
+        compactLayout ? 160 : 120;
+
+    const int16_t detailWidth =
+        DisplayConfig::Width - (detailX * 2);
+
+    uint8_t statusScale = 2;
+    uint8_t detailScale = 2;
+
+    if (compactLayout)
+    {
+        // Marker and padding consume a fixed 36 pixels; only reduce text scale
+        // when the remaining narrow-display width cannot contain the status.
+        constexpr int16_t StatusChromeWidth = 36;
+
+        if (Display_GetTextWidth(statusText, statusScale) >
+            statusWidth - StatusChromeWidth)
+        {
+            statusScale = 1;
+        }
+
+        if (detailText != nullptr &&
+            Display_GetTextWidth(detailText, detailScale) > detailWidth)
+        {
+            detailScale = 1;
+        }
+    }
+
     Display_DrawHeaderBar(
         title,
         Color::Blue,
@@ -1046,27 +1092,27 @@ void Display_ShowStatusScreen(
         34);
 
     Display_DrawStatusIndicator(
-        12,
-        60,
-        DisplayConfig::Width - 24,
-        42,
+        statusX,
+        statusY,
+        statusWidth,
+        statusHeight,
         statusText,
         statusColor,
         Color::White,
         Color::Black,
         Display_StatusMarkerShape::Circle,
-        2);
+        statusScale);
 
     if (detailText != nullptr)
     {
         Display_DrawTextWrapped(
-            10,
-            120,
-            DisplayConfig::Width - 20,
+            detailX,
+            detailY,
+            detailWidth,
             detailText,
             Color::Cyan,
             Color::Black,
-            2);
+            detailScale);
     }
 }
 

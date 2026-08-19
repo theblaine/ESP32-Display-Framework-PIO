@@ -138,6 +138,11 @@ two widget-demo environments compile the same files from
 `Display::height()` to select compact geometry where needed. TTGO-specific
 widget implementations were intentionally not introduced.
 
+Page layout may vary by display size while widget and service implementations
+remain shared. Use `Display::width()` and `Display::height()` in pages and demos,
+tighten gaps before reducing component sizes, and prefer shorter labels over
+unreadably small text on narrow displays.
+
 For example, `Display_DrawSignalMeter()` accepts a generic level. `NetworkPage` owns the Wi-Fi RSSI thresholds used to convert dBm to a 0–4 signal level.
 
 ## Services
@@ -156,6 +161,10 @@ Call `MQTTService::loop()` regularly.
 
 The Home Dashboard has one central MQTT router in `main.cpp`. It dispatches topic payloads to page-specific handlers.
 
+The standalone MQTT demo currently exercises `WiFiMulti` and `PubSubClient`
+directly. Its TTGO validation proves MQTT connectivity and payload handling,
+not the `MQTTService` abstraction.
+
 ### TimeService
 
 Owns NTP setup, synchronization state, and local date/time formatting. Call
@@ -166,6 +175,9 @@ the background, so `TimeService` has no required `loop()`.
 The Home Dashboard initializes `TimeService` globally in `main.cpp`, using
 `PST8PDT,M3.2.0,M11.1.0` for Pacific time. `SystemStatusPage` consumes the
 service and displays its current date and time.
+
+`TimeService` and the shared NTP demo have also been physically validated on
+TTGO T-Display V1.1 hardware.
 
 ## Supporting Hardware Libraries
 
@@ -201,6 +213,7 @@ Examples:
 
 - `demo_display_widgets`
 - `ttgo_display_widgets` — the same widget-demo source with compact layouts selected from display geometry
+- `ttgo_wifi`, `ttgo_mqtt`, and `ttgo_ntp` — physically validated TTGO service demos
 - `demo_png`
 - `demo_sd_usb`
 - `demo_ntp` — proves Wi-Fi + NTP synchronization + display output

@@ -72,38 +72,59 @@ namespace
     {
         Display_FillScreen(Color::Black);
 
+        const bool compactLayout =
+            Display::width() < 160;
+
+        const int16_t sideWidth =
+            compactLayout
+                ? (Display::width() - 30) / 2
+                : 60;
+
+        const int16_t rightX =
+            compactLayout
+                ? Display::width() - sideWidth - 10
+                : 100;
+
+        const int16_t centerX =
+            compactLayout ? 20 : 40;
+
+        const int16_t centerWidth =
+            compactLayout
+                ? Display::width() - 40
+                : 90;
+
         Display_FillRect(
             10,
             10,
-            60,
+            sideWidth,
             50,
             Color::Yellow);
 
         Display_FillRect(
-            100,
+            rightX,
             10,
-            60,
+            sideWidth,
             50,
             Color::Red);
 
         Display_FillRect(
-            40,
+            centerX,
             90,
-            90,
+            centerWidth,
             60,
             Color::Blue);
 
         Display_FillRect(
             10,
             180,
-            60,
+            sideWidth,
             50,
             Color::Cyan);
 
         Display_FillRect(
-            100,
+            rightX,
             180,
-            60,
+            sideWidth,
             50,
             Color::Green);
 

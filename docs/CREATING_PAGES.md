@@ -324,7 +324,18 @@ That helper stays page-specific because it is simply a layout composition rather
 
 Promote something into `Display_Widgets` when it is genuinely reusable across multiple applications/pages.
 
-## 15. Shared Footer
+## 15. Responsive Page Layout
+
+Keep reusable widgets and services board-independent, but allow page geometry
+to respond to `Display::width()` and `Display::height()`. For narrow displays,
+reduce margins and gaps before reducing widget or text size. Prefer concise
+labels when a long label would otherwise force tiny text.
+
+Table layouts are page-owned: pass a label-column width suited to each
+`Display_DrawTable()` call rather than assuming one global split works for all
+pages and resolutions.
+
+## 16. Shared Footer
 
 The current footer shows HA, FR, and PH data-received state.
 
@@ -332,7 +343,7 @@ The current footer shows HA, FR, and PH data-received state.
 
 A new page normally calls only its own `draw()`. `drawCurrentPage()` and visible MQTT redraw blocks add the shared footer afterward.
 
-## 16. Button Navigation
+## 17. Button Navigation
 
 Current Home Dashboard behavior:
 
@@ -342,7 +353,7 @@ Current Home Dashboard behavior:
 
 Avoid direct GPIO reads from a page. Use `Buttons`.
 
-## 17. Page Checklist
+## 18. Page Checklist
 
 Before committing a new page:
 

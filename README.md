@@ -1,10 +1,10 @@
 # ESP32 Display Framework for PlatformIO
 
-**Current version: v0.2.13**
+**Current version: v0.2.14**
 
 A reusable PlatformIO framework for ESP32 display projects. The project separates board-specific display configuration, reusable drawing/UI libraries, hardware services, focused demos, and modular applications so that future projects can reuse only the pieces they need.
 
-The primary development target is the **Waveshare ESP32-S3-LCD-1.47**. Selected display demos also support the **TTGO T-Display V1.1**.
+The primary development target is the **Waveshare ESP32-S3-LCD-1.47**. The **TTGO T-Display V1.1** is also a supported target for the validated display, Wi-Fi, MQTT, and NTP demos listed below.
 
 > This project is still pre-1.0. APIs and organization may continue to evolve.
 
@@ -38,7 +38,7 @@ Primary board and the only board currently exercising the complete Home Dashboar
 
 ### TTGO T-Display V1.1
 
-Early support for selected display-only demos.
+Physically validated display and service demos.
 
 Current TTGO environments:
 
@@ -47,8 +47,11 @@ Current TTGO environments:
 - `ttgo_display_console`
 - `ttgo_display_calibration`
 - `ttgo_display_widgets`
+- `ttgo_wifi`
+- `ttgo_mqtt`
+- `ttgo_ntp`
 
-`Display_Widgets` is shared across both boards. The Waveshare and TTGO widget environments compile the same demo source; its pages select compact spacing and sizing from `Display::width()` and `Display::height()` rather than using TTGO-specific widget implementations. The widget demo has been physically verified on TTGO hardware.
+Waveshare and TTGO share the reusable `Display` and `Display_Widgets` implementations. Shared demo pages select layout geometry from `Display::width()` and `Display::height()` rather than using board-specific widgets. On narrow screens, prefer shorter labels and tighter gaps before reducing widget or text size.
 
 See [`docs/BOARD_SUPPORT.md`](docs/BOARD_SUPPORT.md).
 
@@ -170,7 +173,7 @@ The repository includes independent demos so capabilities can be tested without 
 
 See `platformio.ini` for the authoritative environment list.
 
-The TTGO equivalent of `demo_display_widgets` is `ttgo_display_widgets`; both environments use `src/demos/display_widgets/`.
+TTGO environments reuse the corresponding shared demo source. For example, `demo_display_widgets` and `ttgo_display_widgets` both use `src/demos/display_widgets/`.
 
 ## Configuration and Secrets
 

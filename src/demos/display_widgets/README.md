@@ -14,6 +14,9 @@ Both environments compile this same source directory and use the shared
 `Display::width()` and `Display::height()` when the display is shorter; no
 TTGO-specific widget implementations or duplicate demo pages are maintained.
 The compact layouts have been visually verified on physical TTGO hardware.
+When adapting another page, tighten margins and gaps before reducing widget or
+text size, and prefer a shorter label when the 135-pixel width cannot support a
+readable long one. Table label-column widths should be selected per page.
 
 Build and upload from a terminal:
 

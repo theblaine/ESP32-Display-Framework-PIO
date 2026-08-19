@@ -5,6 +5,10 @@
 This document contains hardware-specific information for the Waveshare
 ESP32-S3-LCD-1.47 development board.
 
+TTGO T-Display support and its physically validated demo/service capabilities
+are documented in `docs/BOARD_SUPPORT.md`; the details below remain
+Waveshare-specific.
+
 For framework-wide portability and support status, also see:
 
 ```text
